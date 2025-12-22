@@ -158,6 +158,12 @@ async function queryNYPLDigitalCollections(date) {
           description = item.note.substring(0, 200);
         }
 
+        // Construct item URL
+        let itemUrl = null;
+        if (item.uuid) {
+          itemUrl = `https://digitalcollections.nypl.org/items/${item.uuid}`;
+        }
+
         items.push({
           title: item.title || 'Untitled',
           imageUrl,
@@ -165,7 +171,8 @@ async function queryNYPLDigitalCollections(date) {
           description,
           source: 'NYPL Digital Collections',
           type: 'archive',
-          uuid: item.uuid
+          uuid: item.uuid,
+          url: itemUrl
         });
 
         // Limit to 10 items
@@ -489,11 +496,15 @@ async function generateHTML(date, weather, items) {
     ? items.map((item, index) => {
         const hasImage = item.imageUrl;
 
+        const headline = item.url
+          ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
+          : escapeHtml(item.title);
+
         return `
       <div class="snippet">
         ${hasImage ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" class="snippet-image">` : ''}
         <div class="snippet-content">
-          <h3>${escapeHtml(item.title)}</h3>
+          <h3>${headline}</h3>
           <p class="snippet-source">${escapeHtml(item.source)}</p>
           <p class="snippet-meta">${item.year || 'Date unknown'}</p>
           <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
@@ -634,6 +645,17 @@ async function generateHTML(date, weather, items) {
             line-height: 1.3;
         }
 
+        .snippet-content h3 a {
+            color: #F7F7F7;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(247, 247, 247, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        .snippet-content h3 a:hover {
+            border-bottom-color: #F7F7F7;
+        }
+
         .snippet-source {
             font-size: 12px;
             font-style: italic;
@@ -770,7 +792,8 @@ function getSampleArchiveData(date) {
       year: 1912,
       imageUrl: 'https://images.nypl.org/index.php?id=1158282&t=w',
       source: 'NYPL Digital Collections',
-      type: 'archive'
+      type: 'archive',
+      url: 'https://digitalcollections.nypl.org/items/510d47e2-8838-a3d9-e040-e00a18064a99'
     },
     {
       title: 'Tomato Blight Threatens NYC Supply',
@@ -778,7 +801,8 @@ function getSampleArchiveData(date) {
       year: 1925,
       imageUrl: null,
       source: 'The New York Times Archive',
-      type: 'article'
+      type: 'article',
+      url: null
     },
     {
       title: 'Essex Street Market Produce Stand',
@@ -786,7 +810,8 @@ function getSampleArchiveData(date) {
       year: 1938,
       imageUrl: 'https://images.nypl.org/index.php?id=716995&t=w',
       source: 'NYPL Digital Collections',
-      type: 'archive'
+      type: 'archive',
+      url: 'https://digitalcollections.nypl.org/items/510d47df-2582-a3d9-e040-e00a18064a99'
     },
     {
       title: 'Victory Garden Competition Winners',
@@ -794,7 +819,8 @@ function getSampleArchiveData(date) {
       year: 1943,
       imageUrl: null,
       source: 'Brooklyn Public Library Digital Collections',
-      type: 'archive'
+      type: 'archive',
+      url: null
     },
     {
       title: 'Fulton Market Produce Display',
@@ -802,7 +828,8 @@ function getSampleArchiveData(date) {
       year: 1956,
       imageUrl: 'https://images.nypl.org/index.php?id=711937&t=w',
       source: 'NYPL Digital Collections',
-      type: 'archive'
+      type: 'archive',
+      url: 'https://digitalcollections.nypl.org/items/510d47df-058c-a3d9-e040-e00a18064a99'
     },
     {
       title: 'Queens Tomato Festival Launch',
@@ -810,7 +837,8 @@ function getSampleArchiveData(date) {
       year: 1967,
       imageUrl: null,
       source: 'Queens Memory Project',
-      type: 'archive'
+      type: 'archive',
+      url: null
     },
     {
       title: 'Community Garden Initiative',
@@ -818,7 +846,8 @@ function getSampleArchiveData(date) {
       year: 1978,
       imageUrl: null,
       source: 'NYC Municipal Archives',
-      type: 'archive'
+      type: 'archive',
+      url: null
     },
     {
       title: 'Greenmarket Expansion Brings Fresh Produce',
@@ -826,7 +855,8 @@ function getSampleArchiveData(date) {
       year: 1982,
       imageUrl: null,
       source: 'The New York Times Archive',
-      type: 'article'
+      type: 'article',
+      url: null
     }
   ];
 
