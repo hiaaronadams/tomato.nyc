@@ -558,8 +558,8 @@ async function generateHTML(date, weather, items) {
 
         body {
             font-family: 'EB Garamond', 'Times New Roman', Times, serif;
-            background-color: #FF223C;
-            color: #F7F7F7;
+            background-color: #F8E6D2;
+            color: #FF223C;
             line-height: 1.4;
             padding: 0;
             margin: 0;
@@ -572,8 +572,8 @@ async function generateHTML(date, weather, items) {
         }
 
         header {
-            border-top: 2px solid #F7F7F7;
-            border-bottom: 2px solid #F7F7F7;
+            border-top: 2px solid #FF223C;
+            border-bottom: 2px solid #FF223C;
             padding: 30px 0;
             margin-bottom: 40px;
         }
@@ -651,14 +651,14 @@ async function generateHTML(date, weather, items) {
         }
 
         .snippet-content h3 a {
-            color: #F7F7F7;
+            color: #FF223C;
             text-decoration: none;
-            border-bottom: 1px solid rgba(247, 247, 247, 0.3);
+            border-bottom: 1px solid rgba(255, 34, 60, 0.3);
             transition: border-color 0.2s;
         }
 
         .snippet-content h3 a:hover {
-            border-bottom-color: #F7F7F7;
+            border-bottom-color: #FF223C;
         }
 
         .snippet-source {
@@ -690,7 +690,7 @@ async function generateHTML(date, weather, items) {
         footer {
             margin-top: 80px;
             padding-top: 30px;
-            border-top: 2px solid #F7F7F7;
+            border-top: 2px solid #FF223C;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
