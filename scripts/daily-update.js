@@ -392,6 +392,10 @@ async function generateHTML(date, weather, items) {
 
     <title>The Tomato Times</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -400,7 +404,7 @@ async function generateHTML(date, weather, items) {
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'EB Garamond', 'Times New Roman', Times, serif;
             background-color: #FF223C;
             color: #F7F7F7;
             line-height: 1.4;
