@@ -49,32 +49,36 @@ async function downloadAndExtractMenuData() {
 
     if (age < thirtyDays) {
       console.log('✓ Using cached menu data');
-      return;
+      return true;
     }
   } catch (err) {
     // Not extracted yet
   }
 
   console.log('⬇ Downloading NYPL menu data archive...');
-  const response = await fetch(MENU_DATA_ARCHIVE_URL);
 
-  if (!response.ok) {
-    throw new Error(`Failed to download menu data: ${response.statusText}`);
-  }
-
-  // Save archive
-  const buffer = await response.arrayBuffer();
-  await fs.writeFile(archivePath, Buffer.from(buffer));
-  console.log('✓ Downloaded archive');
-
-  // Extract archive
-  console.log('📦 Extracting archive...');
   try {
+    const response = await fetch(MENU_DATA_ARCHIVE_URL);
+
+    if (!response.ok) {
+      console.warn(`⚠️  Failed to download menu data: ${response.statusText}`);
+      return false;
+    }
+
+    // Save archive
+    const buffer = await response.arrayBuffer();
+    await fs.writeFile(archivePath, Buffer.from(buffer));
+    console.log('✓ Downloaded archive');
+
+    // Extract archive
+    console.log('📦 Extracting archive...');
     await execAsync(`tar -xzf "${archivePath}" -C "${CACHE_DIR}"`);
     await fs.writeFile(extractedMarker, new Date().toISOString());
     console.log('✓ Extracted CSV files');
+    return true;
   } catch (err) {
-    throw new Error(`Failed to extract archive: ${err.message}`);
+    console.warn(`⚠️  Failed to download/extract archive: ${err.message}`);
+    return false;
   }
 }
 
@@ -146,12 +150,27 @@ async function findTomatoItemsForDate(date) {
   console.log(`🔍 Searching for tomato items from ${month}/${day} (any year)...`);
 
   // Download and extract menu data
-  await downloadAndExtractMenuData();
+  const downloadSuccess = await downloadAndExtractMenuData();
+
+  if (!downloadSuccess) {
+    console.log('⚠️  Download failed, falling back to sample data...');
+    return getSampleData(date);
+  }
 
   // Load data files from cache
   const dishesPath = path.join(CACHE_DIR, 'Dish.csv');
   const menusPath = path.join(CACHE_DIR, 'Menu.csv');
   const menuItemsPath = path.join(CACHE_DIR, 'MenuItem.csv');
+
+  // Verify files exist
+  try {
+    await fs.access(dishesPath);
+    await fs.access(menusPath);
+    await fs.access(menuItemsPath);
+  } catch (err) {
+    console.log('⚠️  CSV files not found, falling back to sample data...');
+    return getSampleData(date);
+  }
 
   const dishes = await loadCSV(dishesPath);
   const menus = await loadCSV(menusPath);
