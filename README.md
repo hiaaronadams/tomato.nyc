@@ -17,9 +17,10 @@ A daily newspaper showcasing tomato-related items from New York City's culinary 
 
 ### Currently Implemented
 - **NYPL What's on the Menu**: Historic restaurant menus (1840s-1990s)
-  - CSV data from AWS S3: `s3.amazonaws.com/menusdata.nypl.org`
+  - Data from 2021 archive: `s3.amazonaws.com/menusdata.nypl.org/gzips/2021_08_01_07_01_17_data.tgz`
   - 1,335,570 transcribed dishes from 17,562 menus
   - Public domain, no copyright restrictions
+  - **Note**: The menus.nypl.org site was retired in January 2025, but data remains available
 
 ### Planned Additions
 - NYPL Digital Collections API (photos, manuscripts)
