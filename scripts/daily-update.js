@@ -494,6 +494,7 @@ async function generateHTML(date, weather, items) {
         ${hasImage ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" class="snippet-image">` : ''}
         <div class="snippet-content">
           <h3>${escapeHtml(item.title)}</h3>
+          <p class="snippet-source">${escapeHtml(item.source)}</p>
           <p class="snippet-meta">${item.year || 'Date unknown'}</p>
           <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
         </div>
@@ -633,6 +634,13 @@ async function generateHTML(date, weather, items) {
             margin-bottom: 8px;
             font-weight: 400;
             line-height: 1.3;
+        }
+
+        .snippet-source {
+            font-size: 12px;
+            font-style: italic;
+            margin-bottom: 8px;
+            opacity: 0.85;
         }
 
         .snippet-meta {
