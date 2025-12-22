@@ -88,45 +88,30 @@
             margin-top: 10px;
         }
 
-        /* Grid system */
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -15px;
-        }
-
-        .col-12 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
-        }
-
-        .col-md-6 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
-        }
-
-        .col-md-3 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
+        /* Masonry layout */
+        .masonry {
+            column-count: 1;
+            column-gap: 30px;
         }
 
         @media (min-width: 768px) {
-            .col-md-6 {
-                width: 50%;
+            .masonry {
+                column-count: 3;
             }
-            .col-md-3 {
-                width: 25%;
+        }
+
+        @media (min-width: 1200px) {
+            .masonry {
+                column-count: 4;
             }
         }
 
         /* Snippets */
         .snippet {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            break-inside: avoid;
+            margin-bottom: 30px;
+            display: inline-block;
+            width: 100%;
         }
 
         .snippet-image {
@@ -227,93 +212,77 @@
         </header>
 
         <main>
-            <div class="row">
+            <div class="masonry">
                 
-      <div class="col-12 col-md-6">
-        <div class="snippet">
-          <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=1158282&amp;t=w')"></div>
-          <div class="snippet-content">
-            <h3>Washington Market Tomato Vendors</h3>
-            <p class="snippet-meta">1912</p>
-            <p class="snippet-desc">Photograph showing vendors selling fresh tomatoes at Washington Market, lower Manhattan</p>
-          </div>
+      <div class="snippet">
+        <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=1158282&amp;t=w')"></div>
+        <div class="snippet-content">
+          <h3>Washington Market Tomato Vendors</h3>
+          <p class="snippet-meta">1912</p>
+          <p class="snippet-desc">Photograph showing vendors selling fresh tomatoes at Washington Market, lower Manhattan</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          
-          <div class="snippet-content">
-            <h3>Tomato Blight Threatens NYC Supply</h3>
-            <p class="snippet-meta">1925</p>
-            <p class="snippet-desc">New York farmers report widespread tomato blight affecting crops shipped to city markets</p>
-          </div>
+      <div class="snippet">
+        
+        <div class="snippet-content">
+          <h3>Tomato Blight Threatens NYC Supply</h3>
+          <p class="snippet-meta">1925</p>
+          <p class="snippet-desc">New York farmers report widespread tomato blight affecting crops shipped to city markets</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=716995&amp;t=w')"></div>
-          <div class="snippet-content">
-            <h3>Essex Street Market Produce Stand</h3>
-            <p class="snippet-meta">1938</p>
-            <p class="snippet-desc">Tomatoes displayed at a produce stand on the Lower East Side</p>
-          </div>
+      <div class="snippet">
+        <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=716995&amp;t=w')"></div>
+        <div class="snippet-content">
+          <h3>Essex Street Market Produce Stand</h3>
+          <p class="snippet-meta">1938</p>
+          <p class="snippet-desc">Tomatoes displayed at a produce stand on the Lower East Side</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          
-          <div class="snippet-content">
-            <h3>Victory Garden Competition Winners</h3>
-            <p class="snippet-meta">1943</p>
-            <p class="snippet-desc">Brooklyn residents display prize-winning tomatoes from rooftop victory gardens</p>
-          </div>
+      <div class="snippet">
+        
+        <div class="snippet-content">
+          <h3>Victory Garden Competition Winners</h3>
+          <p class="snippet-meta">1943</p>
+          <p class="snippet-desc">Brooklyn residents display prize-winning tomatoes from rooftop victory gardens</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=711937&amp;t=w')"></div>
-          <div class="snippet-content">
-            <h3>Fulton Market Produce Display</h3>
-            <p class="snippet-meta">1956</p>
-            <p class="snippet-desc">Crates of tomatoes at Fulton Fish Market, also known for produce sales</p>
-          </div>
+      <div class="snippet">
+        <div class="snippet-image" style="background-image: url('https://images.nypl.org/index.php?id=711937&amp;t=w')"></div>
+        <div class="snippet-content">
+          <h3>Fulton Market Produce Display</h3>
+          <p class="snippet-meta">1956</p>
+          <p class="snippet-desc">Crates of tomatoes at Fulton Fish Market, also known for produce sales</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          
-          <div class="snippet-content">
-            <h3>Queens Tomato Festival Launch</h3>
-            <p class="snippet-meta">1967</p>
-            <p class="snippet-desc">First annual tomato festival held in Astoria celebrates Italian-American heritage</p>
-          </div>
+      <div class="snippet">
+        
+        <div class="snippet-content">
+          <h3>Queens Tomato Festival Launch</h3>
+          <p class="snippet-meta">1967</p>
+          <p class="snippet-desc">First annual tomato festival held in Astoria celebrates Italian-American heritage</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          
-          <div class="snippet-content">
-            <h3>Community Garden Initiative</h3>
-            <p class="snippet-meta">1978</p>
-            <p class="snippet-desc">Bronx community gardeners harvest tomatoes from urban garden plots</p>
-          </div>
+      <div class="snippet">
+        
+        <div class="snippet-content">
+          <h3>Community Garden Initiative</h3>
+          <p class="snippet-meta">1978</p>
+          <p class="snippet-desc">Bronx community gardeners harvest tomatoes from urban garden plots</p>
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <div class="snippet">
-          
-          <div class="snippet-content">
-            <h3>Greenmarket Expansion Brings Fresh Produce</h3>
-            <p class="snippet-meta">1982</p>
-            <p class="snippet-desc">Union Square Greenmarket opens, bringing locally-grown tomatoes to Manhattan shoppers</p>
-          </div>
+      <div class="snippet">
+        
+        <div class="snippet-content">
+          <h3>Greenmarket Expansion Brings Fresh Produce</h3>
+          <p class="snippet-meta">1982</p>
+          <p class="snippet-desc">Union Square Greenmarket opens, bringing locally-grown tomatoes to Manhattan shoppers</p>
         </div>
       </div>
             </div>

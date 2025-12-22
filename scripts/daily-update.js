@@ -487,22 +487,19 @@ async function generateHTML(date, weather, items) {
   // Generate grid items HTML
   const itemsHTML = items.length > 0
     ? items.map((item, index) => {
-        const colClass = index === 0 ? 'col-12 col-md-6' : 'col-12 col-md-3';
         const hasImage = item.imageUrl;
 
         return `
-      <div class="${colClass}">
-        <div class="snippet">
-          ${hasImage ? `<div class="snippet-image" style="background-image: url('${escapeHtml(item.imageUrl)}')"></div>` : ''}
-          <div class="snippet-content">
-            <h3>${escapeHtml(item.title)}</h3>
-            <p class="snippet-meta">${item.year || 'Date unknown'}</p>
-            <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
-          </div>
+      <div class="snippet">
+        ${hasImage ? `<div class="snippet-image" style="background-image: url('${escapeHtml(item.imageUrl)}')"></div>` : ''}
+        <div class="snippet-content">
+          <h3>${escapeHtml(item.title)}</h3>
+          <p class="snippet-meta">${item.year || 'Date unknown'}</p>
+          <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
         </div>
       </div>`;
       }).join('\n')
-    : '<div class="col-12"><p class="no-items">No tomato items found for this day in history. Check back tomorrow! 🍅</p></div>';
+    : '<p class="no-items">No tomato items found for this day in history. Check back tomorrow! 🍅</p>';
 
   // Collect unique sources
   const sources = [...new Set(items.map(item => item.source))];
@@ -598,45 +595,30 @@ async function generateHTML(date, weather, items) {
             margin-top: 10px;
         }
 
-        /* Grid system */
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -15px;
-        }
-
-        .col-12 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
-        }
-
-        .col-md-6 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
-        }
-
-        .col-md-3 {
-            width: 100%;
-            padding: 0 15px;
-            margin-bottom: 30px;
+        /* Masonry layout */
+        .masonry {
+            column-count: 1;
+            column-gap: 30px;
         }
 
         @media (min-width: 768px) {
-            .col-md-6 {
-                width: 50%;
+            .masonry {
+                column-count: 3;
             }
-            .col-md-3 {
-                width: 25%;
+        }
+
+        @media (min-width: 1200px) {
+            .masonry {
+                column-count: 4;
             }
         }
 
         /* Snippets */
         .snippet {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            break-inside: avoid;
+            margin-bottom: 30px;
+            display: inline-block;
+            width: 100%;
         }
 
         .snippet-image {
@@ -737,7 +719,7 @@ async function generateHTML(date, weather, items) {
         </header>
 
         <main>
-            <div class="row">
+            <div class="masonry">
                 ${itemsHTML}
             </div>
         </main>
