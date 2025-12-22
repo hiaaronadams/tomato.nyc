@@ -587,13 +587,18 @@ async function generateHTML(date, weather, items) {
             font-size: 14px;
         }
 
+        .header-top .location {
+            text-align: center;
+        }
+
         .masthead {
             text-align: center;
             margin: 20px 0;
         }
 
         .masthead-logo {
-            max-width: 100%;
+            max-width: 650px;
+            width: 100%;
             height: auto;
             display: inline-block;
         }
@@ -736,6 +741,7 @@ async function generateHTML(date, weather, items) {
         <header>
             <div class="header-top">
                 <div class="date">${dateStr}</div>
+                <div class="location">New York City</div>
                 <div class="weather">${weather.icon} ${weather.temp}°${weather.unit || 'F'} ${weather.condition}</div>
             </div>
             <div class="masthead">
