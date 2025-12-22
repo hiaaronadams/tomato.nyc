@@ -789,17 +789,17 @@ function escapeHtml(text) {
  * Generate sample archival data for testing/fallback
  */
 function getSampleArchiveData(date) {
-  // Sample archival items representing diverse sources
-  // Using real NYPL image IDs and realistic descriptions
+  // Sample archival items for demo/testing
+  // In production, real API data will have working URLs and images
   const samples = [
     {
       title: 'Washington Market Tomato Vendors',
       description: 'Photograph showing vendors selling fresh tomatoes at Washington Market, lower Manhattan',
       year: 1912,
-      imageUrl: 'https://images.nypl.org/index.php?id=1158282&t=w',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47e2-8838-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Tomato Blight Threatens NYC Supply',
@@ -814,10 +814,10 @@ function getSampleArchiveData(date) {
       title: 'Essex Street Market Produce Stand',
       description: 'Tomatoes displayed at a produce stand on the Lower East Side',
       year: 1938,
-      imageUrl: 'https://images.nypl.org/index.php?id=716995&t=w',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47df-2582-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Victory Garden Competition Winners',
@@ -832,10 +832,10 @@ function getSampleArchiveData(date) {
       title: 'Fulton Market Produce Display',
       description: 'Crates of tomatoes at Fulton Fish Market, also known for produce sales',
       year: 1956,
-      imageUrl: 'https://images.nypl.org/index.php?id=711937&t=w',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47df-058c-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Queens Tomato Festival Launch',
