@@ -20,6 +20,8 @@ const MENU_DATA_ARCHIVE_URL = 'https://s3.amazonaws.com/menusdata.nypl.org/gzips
 const NYPL_DIGITAL_API = 'https://api.repo.nypl.org/api/v2/items/search';
 const NYTIMES_ARCHIVE_API = 'https://api.nytimes.com/svc/archive/v1';
 const NYTIMES_ARTICLE_API = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
+const WIKIMEDIA_API = 'https://commons.wikimedia.org/w/api.php';
+const LOC_API = 'https://www.loc.gov/collections/chronicling-america/';
 const WEATHER_API = 'https://api.weather.gov/gridpoints/OKX/33,37/forecast';
 
 // API Keys (set via environment variables)
@@ -294,6 +296,159 @@ async function queryNYTimesArchive(date) {
 }
 
 /**
+ * Query Wikimedia Commons for tomato-related NYC images
+ */
+async function queryWikimediaCommons(date) {
+  try {
+    const searchTerms = [
+      'tomato New York City',
+      'tomatoes Manhattan market',
+      'NYC produce vendor',
+      'New York vegetable market'
+    ];
+
+    const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+
+    const params = new URLSearchParams({
+      action: 'query',
+      format: 'json',
+      generator: 'search',
+      gsrsearch: searchTerm,
+      gsrlimit: '20',
+      prop: 'imageinfo|info',
+      iiprop: 'url|extmetadata',
+      iiurlwidth: '800',
+      inprop: 'url'
+    });
+
+    const url = `${WIKIMEDIA_API}?${params.toString()}`;
+    console.log(`  Querying Wikimedia Commons...`);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.warn(`Wikimedia API failed: ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const items = [];
+
+    if (data.query?.pages) {
+      for (const pageId in data.query.pages) {
+        const page = data.query.pages[pageId];
+
+        if (!page.imageinfo || !page.imageinfo[0]) continue;
+
+        const imageInfo = page.imageinfo[0];
+        const metadata = imageInfo.extmetadata || {};
+
+        // Extract description and check relevance
+        const description = metadata.ImageDescription?.value || metadata.ObjectName?.value || page.title || '';
+        const descLower = description.toLowerCase();
+
+        // MUST mention BOTH tomato AND NYC/New York - strict filtering
+        const hasTomato = descLower.includes('tomato');
+        const hasNYC = descLower.includes('new york') || descLower.includes('nyc') ||
+                       descLower.includes('manhattan') || descLower.includes('brooklyn') ||
+                       descLower.includes('queens') || descLower.includes('bronx');
+
+        if (!hasTomato || !hasNYC) continue;
+
+        // Extract year from date
+        let year = null;
+        const dateStr = metadata.DateTimeOriginal?.value || metadata.DateTime?.value || '';
+        const yearMatch = dateStr.match(/\d{4}/);
+        if (yearMatch) {
+          year = parseInt(yearMatch[0]);
+        }
+
+        items.push({
+          title: page.title.replace(/^File:/, '').replace(/\.\w+$/, '').replace(/_/g, ' '),
+          description: description.replace(/<[^>]*>/g, '').substring(0, 200),
+          year,
+          imageUrl: imageInfo.thumburl || imageInfo.url,
+          source: 'Wikimedia Commons',
+          type: 'image',
+          url: page.fullurl
+        });
+
+        if (items.length >= 5) break;
+      }
+    }
+
+    return items;
+  } catch (err) {
+    console.warn(`Wikimedia Commons error: ${err.message}`);
+    return [];
+  }
+}
+
+/**
+ * Query Library of Congress Chronicling America for tomato-related NYC articles
+ */
+async function queryLibraryOfCongress(date) {
+  try {
+    // Search historic newspapers for tomato mentions in NYC papers
+    const params = new URLSearchParams({
+      proxtext: 'tomato',
+      state: 'New York',
+      format: 'json',
+      page: '1'
+    });
+
+    const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
+    console.log(`  Querying Library of Congress...`);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.warn(`LOC API failed: ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const items = [];
+
+    if (data.items) {
+      for (const item of data.items) {
+        // Extract year
+        let year = null;
+        if (item.date) {
+          const dateMatch = item.date.match(/(\d{4})/);
+          if (dateMatch) year = parseInt(dateMatch[1]);
+        }
+
+        // Get newspaper title and location
+        const newspaper = item.title || 'Unknown newspaper';
+        const city = item.city?.[0] || '';
+
+        // Create description from OCR text snippet
+        let description = item.ocr_eng || '';
+        description = description.substring(0, 200);
+
+        items.push({
+          title: `${newspaper} - ${item.date || 'Unknown date'}`,
+          description,
+          year,
+          imageUrl: null,
+          source: 'Library of Congress',
+          type: 'newspaper',
+          url: item.id ? `https://chroniclingamerica.loc.gov${item.id}` : null
+        });
+
+        if (items.length >= 5) break;
+      }
+    }
+
+    return items;
+  } catch (err) {
+    console.warn(`Library of Congress error: ${err.message}`);
+    return [];
+  }
+}
+
+/**
  * Get NYC weather from NOAA API
  */
 async function getNYCWeather() {
@@ -465,6 +620,26 @@ async function gatherAllItems(date) {
     allItems.push(...nytimesItems);
   } catch (err) {
     console.warn('NYTimes Archive search failed:', err.message);
+  }
+
+  // 4. Wikimedia Commons
+  try {
+    console.log('🖼️  Searching Wikimedia Commons...');
+    const wikimediaItems = await queryWikimediaCommons(date);
+    console.log(`✓ Found ${wikimediaItems.length} Wikimedia items`);
+    allItems.push(...wikimediaItems);
+  } catch (err) {
+    console.warn('Wikimedia Commons search failed:', err.message);
+  }
+
+  // 5. Library of Congress
+  try {
+    console.log('📜 Searching Library of Congress...');
+    const locItems = await queryLibraryOfCongress(date);
+    console.log(`✓ Found ${locItems.length} LOC items`);
+    allItems.push(...locItems);
+  } catch (err) {
+    console.warn('Library of Congress search failed:', err.message);
   }
 
   // If no archival items found, use sample archive data
