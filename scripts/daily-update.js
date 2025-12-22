@@ -15,13 +15,19 @@ const ROOT_DIR = path.join(__dirname, '..');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const CACHE_DIR = path.join(DATA_DIR, 'cache');
 
-// Data source URL - NYPL menu dataset archive
-// Note: The menus.nypl.org site was retired in Jan 2025
-// Archive contains: Dish.csv, Menu.csv, MenuItem.csv, MenuPage.csv
+// Data source URLs
 const MENU_DATA_ARCHIVE_URL = 'https://s3.amazonaws.com/menusdata.nypl.org/gzips/2021_08_01_07_01_17_data.tgz';
-
-// Weather API endpoint (NOAA/Weather.gov - free, no key)
+const NYPL_DIGITAL_API = 'https://api.repo.nypl.org/api/v2/items/search';
 const WEATHER_API = 'https://api.weather.gov/gridpoints/OKX/33,37/forecast';
+
+// Data source types for rotation
+const DATA_SOURCES = {
+  NYPL_MENUS: 'nypl_menus',
+  NYPL_DIGITAL: 'nypl_digital',
+  NYC_ARCHIVES: 'nyc_archives',
+  QUEENS_MEMORY: 'queens_memory',
+  BROOKLYN_PUBLIC: 'brooklyn_public'
+};
 
 /**
  * Ensure directory exists
@@ -93,6 +99,52 @@ async function loadCSV(filepath) {
     relax_quotes: true,
     relax_column_count: true
   });
+}
+
+/**
+ * Query NYPL Digital Collections API for tomato-related items
+ */
+async function queryNYPLDigitalCollections(date) {
+  try {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Search for tomato-related items
+    const query = `tomato AND dateDigitized:*-${month}-${day}`;
+    const url = `${NYPL_DIGITAL_API}?q=${encodeURIComponent(query)}&per_page=20&publicDomainOnly=true`;
+
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn('NYPL Digital API failed');
+      return [];
+    }
+
+    const data = await response.json();
+    const items = [];
+
+    if (data.nyplAPI?.response?.result) {
+      for (const item of data.nyplAPI.response.result.slice(0, 5)) {
+        items.push({
+          title: item.title || 'Untitled',
+          imageUrl: item.imageID?.[0] ? `https://digitalcollections.nypl.org/items/${item.imageID[0]}/book` : null,
+          year: item.dateDigitized ? new Date(item.dateDigitized).getFullYear() : null,
+          description: item.description || '',
+          source: 'NYPL Digital Collections',
+          type: 'image'
+        });
+      }
+    }
+
+    return items;
+  } catch (err) {
+    console.warn(`NYPL Digital API error: ${err.message}`);
+    return [];
+  }
 }
 
 /**
@@ -217,8 +269,61 @@ async function findTomatoItemsForDate(date) {
     }
   }
 
-  console.log(`✓ Found ${tomatoItems.length} tomato items`);
-  return tomatoItems;
+  console.log(`✓ Found ${tomatoItems.length} tomato menu items`);
+
+  // Normalize to standard format
+  return tomatoItems.map(item => ({
+    title: item.dishName,
+    description: `${item.price} • ${item.venue}${item.location !== 'New York' ? ` • ${item.location}` : ''}`,
+    year: item.year,
+    imageUrl: null,
+    source: 'NYPL What\'s on the Menu',
+    type: 'menu'
+  }));
+}
+
+/**
+ * Gather items from all data sources
+ */
+async function gatherAllItems(date) {
+  const allItems = [];
+
+  // Try each source
+  console.log('\n📚 Querying all data sources...');
+
+  // 1. NYPL Menus
+  try {
+    const menuItems = await findTomatoItemsForDate(date);
+    allItems.push(...menuItems);
+  } catch (err) {
+    console.warn('Menu search failed:', err.message);
+  }
+
+  // 2. NYPL Digital Collections
+  try {
+    console.log('🖼️  Searching NYPL Digital Collections...');
+    const digitalItems = await queryNYPLDigitalCollections(date);
+    console.log(`✓ Found ${digitalItems.length} digital items`);
+    allItems.push(...digitalItems);
+  } catch (err) {
+    console.warn('Digital collections search failed:', err.message);
+  }
+
+  // If no items from any source, return sample data
+  if (allItems.length === 0) {
+    console.log('⚠️  No items found from any source, using sample data...');
+    return getSampleData(date).map(item => ({
+      title: item.dishName,
+      description: `${item.price} • ${item.venue}`,
+      year: item.year,
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu (Sample)',
+      type: 'menu'
+    }));
+  }
+
+  // Shuffle to rotate sources fairly
+  return allItems.sort(() => Math.random() - 0.5);
 }
 
 /**
@@ -233,46 +338,59 @@ async function generateHTML(date, weather, items) {
   });
 
   // Sort items by year (oldest first)
-  items.sort((a, b) => a.year - b.year);
+  items.sort((a, b) => (a.year || 0) - (b.year || 0));
 
-  // Generate item HTML
+  // Generate grid items HTML
   const itemsHTML = items.length > 0
-    ? items.map(item => `
-      <article class="story">
-        <h3>${escapeHtml(item.dishName)}</h3>
-        <p class="meta">${item.year} • ${escapeHtml(item.venue)} ${item.location !== 'New York' ? `• ${escapeHtml(item.location)}` : ''}</p>
-        <p class="price">${escapeHtml(item.price)}</p>
-      </article>
-    `).join('\n')
-    : '<p class="no-items">No tomato items found for this day in history. Check back tomorrow! 🍅</p>';
+    ? items.map((item, index) => {
+        const colClass = index === 0 ? 'col-12 col-md-6' : 'col-12 col-md-3';
+        const hasImage = item.imageUrl;
+
+        return `
+      <div class="${colClass}">
+        <div class="snippet">
+          ${hasImage ? `<div class="snippet-image" style="background-image: url('${escapeHtml(item.imageUrl)}')"></div>` : '<div class="snippet-image"></div>'}
+          <div class="snippet-content">
+            <h3>${escapeHtml(item.title)}</h3>
+            <p class="snippet-meta">${item.year || 'Date unknown'}</p>
+            <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
+          </div>
+        </div>
+      </div>`;
+      }).join('\n')
+    : '<div class="col-12"><p class="no-items">No tomato items found for this day in history. Check back tomorrow! 🍅</p></div>';
+
+  // Collect unique sources
+  const sources = [...new Set(items.map(item => item.source))];
+  const sourcesHTML = sources.map(s => `<p class="source-line">${escapeHtml(s)}</p>`).join('\n');
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The Daily Tomato - NYC tomato history for ${dateStr}">
-    <meta name="keywords" content="tomato, nyc, new york, history, menus">
+    <meta name="description" content="The Tomato Times - NYC tomato history for ${dateStr}">
+    <meta name="keywords" content="tomato, nyc, new york, history">
     <meta name="author" content="tomato.nyc">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tomato.nyc/">
-    <meta property="og:title" content="The Daily Tomato - ${dateStr}">
-    <meta property="og:description" content="NYC tomato history from ${items.length} menu${items.length !== 1 ? 's' : ''} on this day">
+    <meta property="og:title" content="The Tomato Times - ${dateStr}">
+    <meta property="og:description" content="On This Day in NYC Tomato History">
     <meta property="og:image" content="https://tomato.nyc/og-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://tomato.nyc/">
-    <meta property="twitter:title" content="The Daily Tomato - ${dateStr}">
-    <meta property="twitter:description" content="NYC tomato history from ${items.length} menu${items.length !== 1 ? 's' : ''} on this day">
+    <meta property="twitter:title" content="The Tomato Times - ${dateStr}">
+    <meta property="twitter:description" content="On This Day in NYC Tomato History">
     <meta property="twitter:image" content="https://tomato.nyc/og-image.png">
 
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
 
-    <title>The Daily Tomato - ${dateStr}</title>
+    <title>The Tomato Times</title>
 
     <style>
         * {
@@ -282,147 +400,177 @@ async function generateHTML(date, weather, items) {
         }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background-color: #f9f7f1;
-            color: #111;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #FF223C;
+            color: #F7F7F7;
+            line-height: 1.4;
+            padding: 0;
+            margin: 0;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            padding: 40px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 40px 60px;
         }
 
         header {
-            border-bottom: 4px double #000;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            border-top: 2px solid #F7F7F7;
+            border-bottom: 2px solid #F7F7F7;
+            padding: 30px 0;
+            margin-bottom: 40px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14px;
         }
 
         .masthead {
             text-align: center;
-            font-family: 'Georgia', serif;
+            margin: 20px 0;
         }
 
         .masthead h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-            font-style: italic;
+            font-size: 5rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 0;
+            line-height: 1;
         }
 
-        .masthead .tagline {
-            font-size: 0.9rem;
+        .tagline {
+            text-align: center;
             font-style: italic;
-            color: #666;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        /* Grid system */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+
+        .col-12 {
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+
+        .col-md-6 {
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+
+        .col-md-3 {
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .col-md-6 {
+                width: 50%;
+            }
+            .col-md-3 {
+                width: 25%;
+            }
+        }
+
+        /* Snippets */
+        .snippet {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .snippet-image {
+            background-color: #F7F7F7;
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            padding-bottom: 66.67%; /* 3:2 aspect ratio */
             margin-bottom: 15px;
         }
 
-        .date-weather {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-            margin-top: 15px;
-        }
-
-        .date {
-            font-weight: bold;
-        }
-
-        .weather {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .stories {
-            margin-top: 30px;
-        }
-
-        .section-header {
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .story {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .story:last-child {
-            border-bottom: none;
-        }
-
-        .story h3 {
-            font-size: 1.3rem;
+        .snippet-content h3 {
+            font-size: 20px;
             margin-bottom: 8px;
+            font-weight: 400;
             line-height: 1.3;
         }
 
-        .story .meta {
-            color: #666;
-            font-size: 0.85rem;
-            font-style: italic;
+        .snippet-meta {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
             margin-bottom: 8px;
+            opacity: 0.9;
         }
 
-        .story .price {
-            font-weight: bold;
-            color: #c41e3a;
+        .snippet-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.95;
         }
 
         .no-items {
             text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 40px 20px;
+            padding: 60px 20px;
+            font-size: 18px;
         }
 
         footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #666;
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 2px solid #F7F7F7;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
         }
 
-        footer a {
-            color: #c41e3a;
-            text-decoration: none;
+        .footer-left {
+            flex: 1;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        .footer-right {
+            text-align: right;
         }
 
-        @media (max-width: 600px) {
+        .source-line {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 30px 20px;
             }
 
             .masthead h1 {
-                font-size: 2rem;
+                font-size: 3rem;
             }
 
-            .date-weather {
+            .header-top {
                 flex-direction: column;
                 gap: 10px;
+                text-align: center;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .footer-right {
+                text-align: left;
             }
         }
     </style>
@@ -430,29 +578,29 @@ async function generateHTML(date, weather, items) {
 <body>
     <div class="container">
         <header>
-            <div class="masthead">
-                <h1>🍅 The Daily Tomato</h1>
-                <p class="tagline">On This Day in NYC Tomato History</p>
-            </div>
-            <div class="date-weather">
+            <div class="header-top">
                 <div class="date">${dateStr}</div>
-                <div class="weather">
-                    <span>${weather.icon} ${weather.temp}°${weather.unit || 'F'}</span>
-                    <span>${weather.condition}</span>
-                </div>
+                <div class="weather">${weather.icon} ${weather.temp}°${weather.unit || 'F'} ${weather.condition}</div>
             </div>
+            <div class="masthead">
+                <h1>The Tomato Times</h1>
+            </div>
+            <div class="tagline">On This Day in NYC Tomato History</div>
         </header>
 
-        <main class="stories">
-            <div class="section-header">
-                ${items.length > 0 ? `${items.length} Item${items.length !== 1 ? 's' : ''} Found` : 'Today\'s Edition'}
+        <main>
+            <div class="row">
+                ${itemsHTML}
             </div>
-            ${itemsHTML}
         </main>
 
         <footer>
-            <p>Data from <a href="https://www.nypl.org/research/support/whats-on-the-menu" target="_blank">NYPL What's on the Menu</a></p>
-            <p>Updates daily at 6am EST • Last updated: ${new Date().toISOString()}</p>
+            <div class="footer-left">
+                ${sourcesHTML || '<p class="source-line">No sources available</p>'}
+            </div>
+            <div class="footer-right">
+                <p>A production of Tomato Laboratories</p>
+            </div>
         </footer>
     </div>
 </body>
@@ -556,13 +704,20 @@ async function main() {
   }
   console.log(`✓ Weather: ${weather.temp}°${weather.unit} - ${weather.condition}\n`);
 
-  // Find tomato items for today's date
+  // Gather items from all data sources
   let items;
   if (isTestMode) {
     console.log('🔍 Using sample tomato items...');
-    items = getSampleData(today);
+    items = getSampleData(today).map(item => ({
+      title: item.dishName,
+      description: `${item.price} • ${item.venue}`,
+      year: item.year,
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu (Sample)',
+      type: 'menu'
+    }));
   } else {
-    items = await findTomatoItemsForDate(today);
+    items = await gatherAllItems(today);
   }
 
   // Generate HTML
