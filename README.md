@@ -72,6 +72,31 @@ tomato.nyc/
 5. **Generates** HTML with newspaper layout
 6. **Commits** and pushes updated `index.html`
 
+**Note**: If the download fails, the script automatically falls back to sample data.
+
+### Manual Data Setup (Optional)
+
+If you want to manually download the NYPL menu data:
+
+1. **Download from Kaggle** (recommended):
+   - Visit [What's on the Menu dataset](https://www.kaggle.com/datasets/nypl/whats-on-the-menu)
+   - Download the CSV files: `Dish.csv`, `Menu.csv`, `MenuItem.csv`, `MenuPage.csv`
+
+2. **Or download from S3**:
+   ```bash
+   wget https://s3.amazonaws.com/menusdata.nypl.org/gzips/2021_08_01_07_01_17_data.tgz
+   tar -xzf 2021_08_01_07_01_17_data.tgz
+   ```
+
+3. **Place files**:
+   ```bash
+   mkdir -p data/cache
+   cp Dish.csv Menu.csv MenuItem.csv MenuPage.csv data/cache/
+   touch data/cache/.extracted
+   ```
+
+Now the script will use your local data instead of downloading.
+
 ### Test Mode
 
 The script includes a test mode for development without downloading large CSV files:
