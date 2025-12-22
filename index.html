@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="tomato.nyc - A fresh slice of the internet">
-    <meta name="keywords" content="tomato, nyc, new york">
+    <meta name="description" content="The Daily Tomato - NYC tomato history for Monday, December 22, 2025">
+    <meta name="keywords" content="tomato, nyc, new york, history, menus">
     <meta name="author" content="tomato.nyc">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tomato.nyc/">
-    <meta property="og:title" content="tomato.nyc">
-    <meta property="og:description" content="A fresh slice of the internet">
+    <meta property="og:title" content="The Daily Tomato - Monday, December 22, 2025">
+    <meta property="og:description" content="NYC tomato history from 5 menus on this day">
     <meta property="og:image" content="https://tomato.nyc/og-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://tomato.nyc/">
-    <meta property="twitter:title" content="tomato.nyc">
-    <meta property="twitter:description" content="A fresh slice of the internet">
+    <meta property="twitter:title" content="The Daily Tomato - Monday, December 22, 2025">
+    <meta property="twitter:description" content="NYC tomato history from 5 menus on this day">
     <meta property="twitter:image" content="https://tomato.nyc/og-image.png">
 
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
 
-    <title>tomato.nyc</title>
+    <title>The Daily Tomato - Monday, December 22, 2025</title>
 
     <style>
         * {
@@ -33,26 +33,213 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            width: 100%;
-        }
-
         body {
-            background-color: #FF223C;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #f9f7f1;
+            color: #111;
+            line-height: 1.6;
+            padding: 20px;
         }
 
-        .tomato {
-            font-size: 20px;
-            line-height: 1;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        header {
+            border-bottom: 4px double #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .masthead {
+            text-align: center;
+            font-family: 'Georgia', serif;
+        }
+
+        .masthead h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .masthead .tagline {
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .date-weather {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            margin-top: 15px;
+        }
+
+        .date {
+            font-weight: bold;
+        }
+
+        .weather {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stories {
+            margin-top: 30px;
+        }
+
+        .section-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .story {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .story:last-child {
+            border-bottom: none;
+        }
+
+        .story h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .story .meta {
+            color: #666;
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .story .price {
+            font-weight: bold;
+            color: #c41e3a;
+        }
+
+        .no-items {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        footer a {
+            color: #c41e3a;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .masthead h1 {
+                font-size: 2rem;
+            }
+
+            .date-weather {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="tomato">🍅</div>
+    <div class="container">
+        <header>
+            <div class="masthead">
+                <h1>🍅 The Daily Tomato</h1>
+                <p class="tagline">On This Day in NYC Tomato History</p>
+            </div>
+            <div class="date-weather">
+                <div class="date">Monday, December 22, 2025</div>
+                <div class="weather">
+                    <span>⛅ 42°F</span>
+                    <span>Partly Cloudy</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="stories">
+            <div class="section-header">
+                5 Items Found
+            </div>
+            
+      <article class="story">
+        <h3>Tomato Soup, Consommé</h3>
+        <p class="meta">1908 • Hotel Astor </p>
+        <p class="price">0.25</p>
+      </article>
+    
+
+      <article class="story">
+        <h3>Sliced Tomatoes</h3>
+        <p class="meta">1922 • Delmonico&#039;s </p>
+        <p class="price">0.15</p>
+      </article>
+    
+
+      <article class="story">
+        <h3>Broiled Lobster with Tomato Sauce</h3>
+        <p class="meta">1935 • Waldorf-Astoria </p>
+        <p class="price">1.50</p>
+      </article>
+    
+
+      <article class="story">
+        <h3>Tomato and Mozzarella Salad</h3>
+        <p class="meta">1951 • Mama Leone&#039;s </p>
+        <p class="price">0.85</p>
+      </article>
+    
+
+      <article class="story">
+        <h3>Cream of Tomato Soup</h3>
+        <p class="meta">1969 • Horn &amp; Hardart Automat </p>
+        <p class="price">0.40</p>
+      </article>
+    
+        </main>
+
+        <footer>
+            <p>Data from <a href="https://www.nypl.org/research/support/whats-on-the-menu" target="_blank">NYPL What's on the Menu</a></p>
+            <p>Updates daily at 6am EST • Last updated: 2025-12-22T03:15:52.008Z</p>
+        </footer>
+    </div>
 </body>
 </html>

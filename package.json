@@ -1,0 +1,19 @@
+{
+  "name": "tomato.nyc",
+  "version": "1.0.0",
+  "description": "Daily tomato newspaper from NYC history",
+  "main": "scripts/daily-update.js",
+  "scripts": {
+    "update": "node scripts/daily-update.js",
+    "dev": "node scripts/daily-update.js --test",
+    "test": "node scripts/daily-update.js --test"
+  },
+  "keywords": ["tomato", "nyc", "history", "menus"],
+  "author": "tomato.nyc",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "node-fetch": "^3.3.2"
+  }
+}
