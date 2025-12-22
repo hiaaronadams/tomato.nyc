@@ -547,7 +547,7 @@ async function generateHTML(date, weather, items) {
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -557,7 +557,7 @@ async function generateHTML(date, weather, items) {
         }
 
         body {
-            font-family: 'EB Garamond', 'Times New Roman', Times, serif;
+            font-family: 'Libre Baskerville', 'Times New Roman', Times, serif;
             background-color: #F8E6D2;
             color: #FF223C;
             line-height: 1.4;
@@ -644,9 +644,9 @@ async function generateHTML(date, weather, items) {
         }
 
         .snippet-content h3 {
-            font-size: 20px;
+            font-size: 24px;
             margin-bottom: 8px;
-            font-weight: 400;
+            font-weight: 700;
             line-height: 1.3;
         }
 
