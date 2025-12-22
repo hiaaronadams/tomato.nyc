@@ -5,19 +5,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import { parse } from 'csv-parse/sync';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '..');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const CACHE_DIR = path.join(DATA_DIR, 'cache');
 
-// Data source URLs
-const MENU_DATA_URLS = {
-  dishes: 'https://s3.amazonaws.com/menusdata.nypl.org/Dish.csv',
-  menus: 'https://s3.amazonaws.com/menusdata.nypl.org/Menu.csv',
-  menuItems: 'https://s3.amazonaws.com/menusdata.nypl.org/MenuItem.csv',
-  menuPages: 'https://s3.amazonaws.com/menusdata.nypl.org/MenuPage.csv'
-};
+// Data source URL - NYPL menu dataset archive
+// Note: The menus.nypl.org site was retired in Jan 2025
+// Archive contains: Dish.csv, Menu.csv, MenuItem.csv, MenuPage.csv
+const MENU_DATA_ARCHIVE_URL = 'https://s3.amazonaws.com/menusdata.nypl.org/gzips/2021_08_01_07_01_17_data.tgz';
 
 // Weather API endpoint (NOAA/Weather.gov - free, no key)
 const WEATHER_API = 'https://api.weather.gov/gridpoints/OKX/33,37/forecast';
@@ -34,37 +35,47 @@ async function ensureDir(dir) {
 }
 
 /**
- * Download and cache CSV file
+ * Download and extract the NYPL menu data archive
  */
-async function downloadCSV(url, filename) {
-  const filepath = path.join(CACHE_DIR, filename);
+async function downloadAndExtractMenuData() {
+  const archivePath = path.join(CACHE_DIR, 'menu-data.tgz');
+  const extractedMarker = path.join(CACHE_DIR, '.extracted');
 
-  // Check if file exists and is less than 30 days old
+  // Check if already extracted and less than 30 days old
   try {
-    const stats = await fs.stat(filepath);
+    const stats = await fs.stat(extractedMarker);
     const age = Date.now() - stats.mtimeMs;
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
     if (age < thirtyDays) {
-      console.log(`✓ Using cached ${filename}`);
-      return filepath;
+      console.log('✓ Using cached menu data');
+      return;
     }
   } catch (err) {
-    // File doesn't exist, download it
+    // Not extracted yet
   }
 
-  console.log(`⬇ Downloading ${filename}...`);
-  const response = await fetch(url);
+  console.log('⬇ Downloading NYPL menu data archive...');
+  const response = await fetch(MENU_DATA_ARCHIVE_URL);
 
   if (!response.ok) {
-    throw new Error(`Failed to download ${filename}: ${response.statusText}`);
+    throw new Error(`Failed to download menu data: ${response.statusText}`);
   }
 
-  const data = await response.text();
-  await fs.writeFile(filepath, data, 'utf-8');
-  console.log(`✓ Downloaded ${filename}`);
+  // Save archive
+  const buffer = await response.arrayBuffer();
+  await fs.writeFile(archivePath, Buffer.from(buffer));
+  console.log('✓ Downloaded archive');
 
-  return filepath;
+  // Extract archive
+  console.log('📦 Extracting archive...');
+  try {
+    await execAsync(`tar -xzf "${archivePath}" -C "${CACHE_DIR}"`);
+    await fs.writeFile(extractedMarker, new Date().toISOString());
+    console.log('✓ Extracted CSV files');
+  } catch (err) {
+    throw new Error(`Failed to extract archive: ${err.message}`);
+  }
 }
 
 /**
@@ -134,10 +145,13 @@ async function findTomatoItemsForDate(date) {
 
   console.log(`🔍 Searching for tomato items from ${month}/${day} (any year)...`);
 
-  // Load data files
-  const dishesPath = await downloadCSV(MENU_DATA_URLS.dishes, 'Dish.csv');
-  const menusPath = await downloadCSV(MENU_DATA_URLS.menus, 'Menu.csv');
-  const menuItemsPath = await downloadCSV(MENU_DATA_URLS.menuItems, 'MenuItem.csv');
+  // Download and extract menu data
+  await downloadAndExtractMenuData();
+
+  // Load data files from cache
+  const dishesPath = path.join(CACHE_DIR, 'Dish.csv');
+  const menusPath = path.join(CACHE_DIR, 'Menu.csv');
+  const menuItemsPath = path.join(CACHE_DIR, 'MenuItem.csv');
 
   const dishes = await loadCSV(dishesPath);
   const menus = await loadCSV(menusPath);
