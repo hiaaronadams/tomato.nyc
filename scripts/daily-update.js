@@ -152,17 +152,20 @@ async function queryNYPLDigitalCollections(date) {
         // Skip if doesn't mention BOTH NYC AND tomatoes
         if (!hasTomato || !hasNYC) continue;
 
-        // Extract image URL - use the capture URL if available
+        // Extract image URL from API response
         let imageUrl = null;
-        if (item.imageLinks && item.imageLinks.imageLink && item.imageLinks.imageLink.length > 0) {
-          // Use the largest available image
+        if (item.imageLinks?.imageLink && Array.isArray(item.imageLinks.imageLink)) {
+          // Find the best quality image
           const links = item.imageLinks.imageLink;
-          const largest = links.find(l => l.size === 't') || links.find(l => l.size === 'b') || links[0];
-          imageUrl = largest ? largest.href : null;
-        } else if (item.uuid) {
-          // Fallback to using the item page image endpoint
-          imageUrl = `https://digitalcollections.nypl.org/items/${item.uuid}/image`;
+          const preferredImage = links.find(l => l.size === 'w') || // width 760
+                                  links.find(l => l.size === 'b') || // width 1600
+                                  links.find(l => l.size === 't') || // width 760
+                                  links[0];
+          imageUrl = preferredImage?.href || null;
         }
+
+        // Only include items that have images - no point showing items without them
+        if (!imageUrl) continue;
 
         // Extract year from date field
         let year = null;
