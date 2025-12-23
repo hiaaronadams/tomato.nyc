@@ -91,7 +91,7 @@
             margin-top: 10px;
         }
 
-        /* Masonry layout */
+        /* Masonry layout - responsive columns based on screen size */
         .masonry {
             column-count: 1;
             column-gap: 30px;
@@ -99,11 +99,17 @@
 
         @media (min-width: 768px) {
             .masonry {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .masonry {
                 column-count: 3;
             }
         }
 
-        @media (min-width: 1200px) {
+        @media (min-width: 1400px) {
             .masonry {
                 column-count: 4;
             }
