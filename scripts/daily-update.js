@@ -37,6 +37,38 @@ const DATA_SOURCES = {
 };
 
 /**
+ * Fetch with retry logic for handling network failures
+ */
+async function fetchWithRetry(url, options = {}, maxRetries = 4) {
+  const delays = [2000, 4000, 8000, 16000]; // Exponential backoff: 2s, 4s, 8s, 16s
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        timeout: 30000 // 30 second timeout
+      });
+      return response;
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      const isNetworkError = error.code === 'EAI_AGAIN' ||
+                            error.code === 'ENOTFOUND' ||
+                            error.code === 'ETIMEDOUT' ||
+                            error.message.includes('getaddrinfo');
+
+      if (!isNetworkError || isLastAttempt) {
+        throw error;
+      }
+
+      // Wait before retrying
+      const delay = delays[attempt] || 16000;
+      console.log(`  Network error, retrying in ${delay/1000}s... (attempt ${attempt + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
+/**
  * Ensure directory exists
  */
 async function ensureDir(dir) {
@@ -71,7 +103,7 @@ async function downloadAndExtractMenuData() {
   console.log('⬇ Downloading NYPL menu data archive...');
 
   try {
-    const response = await fetch(MENU_DATA_ARCHIVE_URL);
+    const response = await fetchWithRetry(MENU_DATA_ARCHIVE_URL);
 
     if (!response.ok) {
       console.warn(`⚠️  Failed to download menu data: ${response.statusText}`);
@@ -121,7 +153,7 @@ async function queryNYPLDigitalCollections(date) {
 
     console.log(`  Querying: ${url.substring(0, 100)}...`);
 
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       headers: {
         'Accept': 'application/json'
       }
@@ -225,7 +257,7 @@ async function queryNYCArchives(date) {
 
     console.log(`  Querying NYC Archives...`);
 
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
 
     if (!response.ok) {
       console.warn(`NYC Archives API failed: ${response.status}`);
@@ -261,7 +293,7 @@ async function queryNYTimesArchive(date) {
 
     console.log(`  Querying NYTimes Archive...`);
 
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
 
     if (!response.ok) {
       console.warn(`NYTimes API failed: ${response.status}`);
@@ -349,7 +381,7 @@ async function queryWikimediaCommons(date) {
     const url = `${WIKIMEDIA_API}?${params.toString()}`;
     console.log(`  Querying Wikimedia Commons...`);
 
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
 
     if (!response.ok) {
       console.warn(`Wikimedia API failed: ${response.status}`);
@@ -437,7 +469,7 @@ async function queryClassifiedAds(date) {
     const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
     console.log(`  Querying for classified ads...`);
 
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
 
     if (!response.ok) {
       console.warn(`LOC Classifieds API failed: ${response.status}`);
@@ -507,7 +539,7 @@ async function queryLibraryOfCongress(date) {
     const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
     console.log(`  Querying Library of Congress...`);
 
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
 
     if (!response.ok) {
       console.warn(`LOC API failed: ${response.status}`);
@@ -560,7 +592,7 @@ async function queryLibraryOfCongress(date) {
  */
 async function getNYCWeather() {
   try {
-    const response = await fetch(WEATHER_API, {
+    const response = await fetchWithRetry(WEATHER_API, {
       headers: {
         'User-Agent': '(tomato.nyc, contact@tomato.nyc)'
       }
@@ -1087,14 +1119,14 @@ function escapeHtml(text) {
  * Generate sample archival data for testing/fallback
  */
 function getSampleArchiveData(date) {
-  // Real archival items with working images/URLs for demo/fallback
-  // These are actual NYPL items verified to exist
+  // Sample archival items for fallback when APIs are unavailable
+  // Images set to null to avoid broken image links
   const samples = [
     {
       title: 'Pushcart vendor selling vegetables on streets of New York City',
       description: 'Photograph of street vendor with produce cart in Manhattan',
       year: 1943,
-      imageUrl: 'https://digitalcollections.nypl.org/items/510d47e3-5a7a-a3d9-e040-e00a18064a99/image',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
       url: 'https://digitalcollections.nypl.org/items/510d47e3-5a7a-a3d9-e040-e00a18064a99'
@@ -1103,7 +1135,7 @@ function getSampleArchiveData(date) {
       title: 'Tomato Stand at Washington Market',
       description: 'Fresh tomatoes displayed at historic Washington Market in lower Manhattan',
       year: 1936,
-      imageUrl: 'https://digitalcollections.nypl.org/items/510d47e1-9ad8-a3d9-e040-e00a18064a99/image',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
       url: 'https://digitalcollections.nypl.org/items/510d47e1-9ad8-a3d9-e040-e00a18064a99'
@@ -1112,7 +1144,7 @@ function getSampleArchiveData(date) {
       title: 'Essex Street Market Interior',
       description: 'Vendors selling fresh produce including tomatoes at Essex Street Market on the Lower East Side',
       year: 1940,
-      imageUrl: 'https://digitalcollections.nypl.org/items/510d47e3-5fc1-a3d9-e040-e00a18064a99/image',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
       url: 'https://digitalcollections.nypl.org/items/510d47e3-5fc1-a3d9-e040-e00a18064a99'
@@ -1130,7 +1162,7 @@ function getSampleArchiveData(date) {
       title: 'Fulton Fish Market Produce Area',
       description: 'Crates of fresh vegetables at Fulton Market, known for both fish and produce sales',
       year: 1956,
-      imageUrl: 'https://digitalcollections.nypl.org/items/510d47e2-0a33-a3d9-e040-e00a18064a99/image',
+      imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
       url: 'https://digitalcollections.nypl.org/items/510d47e2-0a33-a3d9-e040-e00a18064a99'
@@ -1142,6 +1174,24 @@ function getSampleArchiveData(date) {
       imageUrl: null,
       source: 'The New York Times Archive',
       type: 'article',
+      url: null
+    },
+    {
+      title: 'Tomato Pushcarts Line Orchard Street',
+      description: 'Street vendors display fresh tomatoes along bustling Orchard Street market on the Lower East Side',
+      year: 1950,
+      imageUrl: null,
+      source: 'NYPL Digital Collections',
+      type: 'archive',
+      url: null
+    },
+    {
+      title: 'Canning Tomatoes in Brooklyn Kitchens',
+      description: 'Brooklyn families preserve summer tomatoes for winter use during the Depression era',
+      year: 1932,
+      imageUrl: null,
+      source: 'NYPL Digital Collections',
+      type: 'archive',
       url: null
     }
   ];
