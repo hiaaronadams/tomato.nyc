@@ -413,6 +413,85 @@ async function queryWikimediaCommons(date) {
 }
 
 /**
+ * Query Library of Congress for historical classified ads about tomatoes
+ */
+async function queryClassifiedAds(date) {
+  try {
+    // Search for classified ads mentioning tomatoes in NY newspapers
+    const searchTerms = [
+      'tomato for sale',
+      'tomatoes wanted',
+      'tomato plants',
+      'tomato seeds'
+    ];
+
+    const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+
+    const params = new URLSearchParams({
+      proxtext: searchTerm,
+      state: 'New York',
+      format: 'json',
+      page: '1'
+    });
+
+    const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
+    console.log(`  Querying for classified ads...`);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.warn(`LOC Classifieds API failed: ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const items = [];
+
+    if (data.items) {
+      for (const item of data.items) {
+        const ocrText = item.ocr_eng || '';
+        const lowerText = ocrText.toLowerCase();
+
+        // Look for classified ad indicators
+        const isClassified = lowerText.includes('for sale') ||
+                            lowerText.includes('wanted') ||
+                            lowerText.includes('seeds') ||
+                            lowerText.includes('plants');
+
+        if (!isClassified) continue;
+
+        // Extract year
+        let year = null;
+        if (item.date) {
+          const dateMatch = item.date.match(/(\d{4})/);
+          if (dateMatch) year = parseInt(dateMatch[1]);
+        }
+
+        // Create compact classified ad style description
+        let description = ocrText.substring(0, 150).trim();
+
+        items.push({
+          title: `Classified: ${item.date || 'Date unknown'}`,
+          description,
+          year,
+          imageUrl: null,
+          source: 'Historic Classifieds',
+          type: 'classified',
+          url: item.id ? `https://chroniclingamerica.loc.gov${item.id}` : null
+        });
+
+        if (items.length >= 3) break;
+      }
+    }
+
+    return items;
+  } catch (err) {
+    console.warn(`Classified ads error: ${err.message}`);
+    return [];
+  }
+}
+
+/**
  * Query Library of Congress Chronicling America for tomato-related NYC articles
  */
 async function queryLibraryOfCongress(date) {
@@ -670,6 +749,16 @@ async function gatherAllItems(date) {
     console.warn('Library of Congress search failed:', err.message);
   }
 
+  // 6. Historical Classified Ads
+  try {
+    console.log('📋 Searching for historical classifieds...');
+    const classifiedItems = await queryClassifiedAds(date);
+    console.log(`✓ Found ${classifiedItems.length} classified ads`);
+    allItems.push(...classifiedItems);
+  } catch (err) {
+    console.warn('Classified ads search failed:', err.message);
+  }
+
   // If no archival items found, use sample archive data
   if (allItems.length === 0) {
     console.log('⚠️  No archival items found, using sample data...');
@@ -813,7 +902,7 @@ async function generateHTML(date, weather, items) {
             margin-top: 10px;
         }
 
-        /* Masonry layout */
+        /* Masonry layout - responsive columns based on screen size */
         .masonry {
             column-count: 1;
             column-gap: 30px;
@@ -821,11 +910,17 @@ async function generateHTML(date, weather, items) {
 
         @media (min-width: 768px) {
             .masonry {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .masonry {
                 column-count: 3;
             }
         }
 
-        @media (min-width: 1200px) {
+        @media (min-width: 1400px) {
             .masonry {
                 column-count: 4;
             }
