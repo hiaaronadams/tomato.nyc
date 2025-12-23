@@ -137,6 +137,21 @@ async function queryNYPLDigitalCollections(date) {
 
     if (data.nyplAPI?.response?.result) {
       for (const item of data.nyplAPI.response.result) {
+        // STRICT FILTERING: Must mention BOTH tomato AND NYC
+        const title = (item.title || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        const note = (item.note || '').toLowerCase();
+        const allText = `${title} ${desc} ${note}`;
+
+        const hasTomato = allText.includes('tomato');
+        const hasNYC = allText.includes('new york') || allText.includes('nyc') ||
+                       allText.includes('manhattan') || allText.includes('brooklyn') ||
+                       allText.includes('queens') || allText.includes('bronx') ||
+                       allText.includes('staten island');
+
+        // Skip if doesn't mention BOTH NYC AND tomatoes
+        if (!hasTomato || !hasNYC) continue;
+
         // Extract image URL - use the capture URL if available
         let imageUrl = null;
         if (item.imageLinks && item.imageLinks.imageLink && item.imageLinks.imageLink.length > 0) {
@@ -355,15 +370,15 @@ async function queryWikimediaCommons(date) {
         const descLower = description.toLowerCase();
         const titleLower = page.title.toLowerCase();
 
-        // Should mention tomato OR be from our targeted NYC search
+        // MUST mention BOTH tomato AND NYC - strict filtering, never compromise
         const hasTomato = descLower.includes('tomato') || titleLower.includes('tomato');
         const hasNYC = descLower.includes('new york') || descLower.includes('nyc') ||
                        descLower.includes('manhattan') || descLower.includes('brooklyn') ||
                        descLower.includes('queens') || descLower.includes('bronx') ||
                        titleLower.includes('new york') || titleLower.includes('nyc');
 
-        // Accept if it has tomato, or if it's from NYC (trust our search term)
-        if (!hasTomato && !hasNYC) continue;
+        // BOTH are required - this is the cross-section of NYC AND tomatoes
+        if (!hasTomato || !hasNYC) continue;
 
         // Extract year from date
         let year = null;
