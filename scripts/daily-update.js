@@ -174,7 +174,7 @@ async function queryNYPLDigitalCollections(date) {
       console.log(`  Found ${data.nyplAPI.response.result.length} total results from NYPL`);
 
       for (const item of data.nyplAPI.response.result) {
-        // NYPL is NYC-focused, so just verify tomato mention
+        // Filter for NYC and NY state only - exclude other states
         const title = (item.title || '').toLowerCase();
         const desc = (item.description || '').toLowerCase();
         const note = (item.note || '').toLowerCase();
@@ -184,6 +184,22 @@ async function queryNYPLDigitalCollections(date) {
 
         // Skip if doesn't mention tomatoes
         if (!hasTomato) continue;
+
+        // Geographic filter: NYC, NY state, or generic (no specific location)
+        const hasNYC = allText.includes('new york') || allText.includes('nyc') ||
+                       allText.includes('manhattan') || allText.includes('brooklyn') ||
+                       allText.includes('queens') || allText.includes('bronx') ||
+                       allText.includes('staten island');
+
+        // Exclude other states explicitly
+        const hasOtherState = allText.includes('florida') || allText.includes('homestead') ||
+                              allText.includes('california') || allText.includes('texas');
+
+        // Skip if it mentions other states
+        if (hasOtherState) continue;
+
+        // If no NYC mention, it must be generic/ambiguous (we'll allow those)
+        // This catches NY state items without excluding them
 
         // Extract image URL from API response
         let imageUrl = null;
@@ -845,8 +861,21 @@ async function gatherAllItems(date) {
     return getSampleArchiveData(date);
   }
 
+  // Deduplicate based on title and URL
+  const seen = new Set();
+  const deduplicated = allItems.filter(item => {
+    const key = `${item.title}|${item.url || item.imageUrl}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+
+  console.log(`✓ Deduplicated ${allItems.length} items to ${deduplicated.length} unique items`);
+
   // Shuffle to rotate sources fairly
-  return allItems.sort(() => Math.random() - 0.5);
+  return deduplicated.sort(() => Math.random() - 0.5);
 }
 
 /**
