@@ -137,10 +137,16 @@ async function queryNYPLDigitalCollections(date) {
 
     if (data.nyplAPI?.response?.result) {
       for (const item of data.nyplAPI.response.result) {
-        // Extract image URL
+        // Extract image URL - use the capture URL if available
         let imageUrl = null;
-        if (item.imageID && item.imageID.length > 0) {
-          imageUrl = `https://images.nypl.org/index.php?id=${item.imageID[0]}&t=w`;
+        if (item.imageLinks && item.imageLinks.imageLink && item.imageLinks.imageLink.length > 0) {
+          // Use the largest available image
+          const links = item.imageLinks.imageLink;
+          const largest = links.find(l => l.size === 't') || links.find(l => l.size === 'b') || links[0];
+          imageUrl = largest ? largest.href : null;
+        } else if (item.uuid) {
+          // Fallback to using the item page image endpoint
+          imageUrl = `https://digitalcollections.nypl.org/items/${item.uuid}/image`;
         }
 
         // Extract year from date field
