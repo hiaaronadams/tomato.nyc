@@ -77,11 +77,21 @@
             margin: 20px 0;
         }
 
+        .masthead a {
+            text-decoration: none;
+            display: inline-block;
+        }
+
         .masthead-logo {
             max-width: 650px;
             width: 100%;
             height: auto;
             display: inline-block;
+            cursor: pointer;
+        }
+
+        .masthead-logo:hover {
+            opacity: 0.9;
         }
 
         .tagline {
@@ -261,10 +271,10 @@
             <div class="header-top">
                 <div class="date">Thursday, December 11, 2025</div>
                 <div class="location">New York City</div>
-                <div class="weather">❄️ 30°F Sunny</div>
+                <div class="weather">❄️ 49°F Sunny</div>
             </div>
             <div class="masthead">
-                <img src="https://tomatolab.org/wp-content/uploads/2025/12/masthead.png" alt="The Tomato Times" class="masthead-logo">
+                <a href="/"><img src="https://tomatolab.org/wp-content/uploads/2025/12/masthead.png" alt="The Tomato Times" class="masthead-logo"></a>
             </div>
             <div class="tagline">On This Day in NYC Tomato History</div>
         </header>
