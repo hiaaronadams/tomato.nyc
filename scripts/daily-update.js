@@ -548,7 +548,7 @@ async function queryClassifiedAds(date) {
           title: `${item.title || 'Newspaper Advertisement'}`,
           description,
           year,
-          imageUrl: item.image_url?.[0] || null,
+          imageUrl: item.image_url?.[0]?.replace(/[&?]c=\d+/, '&c=800') || null, // Request larger image (800px)
           source: 'Library of Congress',
           type: 'classified',
           url: item.url || null
@@ -634,7 +634,7 @@ async function queryLibraryOfCongress(date) {
           title: item.title || 'Historic Newspaper Article',
           description,
           year,
-          imageUrl: item.image_url?.[0] || null,
+          imageUrl: item.image_url?.[0]?.replace(/[&?]c=\d+/, '&c=800') || null, // Request larger image (800px)
           source: 'Library of Congress',
           type: 'newspaper',
           url: item.url || null
@@ -881,7 +881,7 @@ async function gatherAllItems(date) {
 /**
  * Generate the HTML page
  */
-async function generateHTML(date, weather, items) {
+async function generateHTML(date, weather, items, archiveLinks = []) {
   const dateStr = date.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -1109,8 +1109,26 @@ async function generateHTML(date, weather, items) {
             flex: 1;
         }
 
+        .footer-center {
+            flex: 1;
+            text-align: center;
+        }
+
         .footer-right {
+            flex: 1;
             text-align: right;
+        }
+
+        .archive-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .archive-links a {
+            font-size: 11px;
         }
 
         .sources-heading {
@@ -1181,6 +1199,13 @@ async function generateHTML(date, weather, items) {
             <div class="footer-left">
                 <p class="sources-heading">Sources</p>
                 ${sourcesHTML || '<p class="source-line">No sources available</p>'}
+            </div>
+            <div class="footer-center">
+                ${archiveLinks.length > 0 ? `
+                <p class="sources-heading">2025 Archives</p>
+                <div class="archive-links">
+                  ${archiveLinks.map(link => `<a href="${link.url}">${link.label}</a>`).join(' ')}
+                </div>` : ''}
             </div>
             <div class="footer-right">
                 <p>A production of <a href="https://tomatolab.org" target="_blank" rel="noopener noreferrer">Tomato Laboratories</a></p>
@@ -1381,17 +1406,66 @@ async function main() {
     items = await gatherAllItems(today);
   }
 
+  // Generate archive links for December 2025
+  const archiveLinks = [];
+  const currentDay = today.getDate();
+  const currentMonth = today.getMonth(); // 11 for December
+
+  // Generate links from Dec 1 to yesterday (or today if today > 1)
+  if (currentMonth === 11 && currentDay >= 1) { // December
+    for (let day = 1; day <= currentDay; day++) {
+      const archiveDate = new Date(2025, 11, day);
+      const monthName = archiveDate.toLocaleDateString('en-US', { month: 'long' });
+      const dayNum = archiveDate.getDate();
+      const ordinal = getDayOrdinal(dayNum);
+
+      archiveLinks.push({
+        url: `archives/2025-12-${day.toString().padStart(2, '0')}.html`,
+        label: `${monthName} ${dayNum}${ordinal}`
+      });
+    }
+  }
+
   // Generate HTML
   console.log('\n📰 Generating HTML...');
-  const html = await generateHTML(today, weather, items);
+  const html = await generateHTML(today, weather, items, archiveLinks);
 
   // Write to index.html
   const indexPath = path.join(ROOT_DIR, 'index.html');
   await fs.writeFile(indexPath, html, 'utf-8');
   console.log(`✓ Written to ${indexPath}`);
 
+  // Generate archive pages
+  console.log('\n📚 Generating archive pages...');
+  const archivesDir = path.join(ROOT_DIR, 'archives');
+  await ensureDir(archivesDir);
+
+  // Generate each archive page from Dec 1 to today
+  for (let day = 1; day <= currentDay; day++) {
+    const archiveDate = new Date(2025, 11, day);
+    const archiveItems = getSampleArchiveData(archiveDate); // Use varied sample data for now
+    const archiveWeather = { temp: 30 + Math.floor(Math.random() * 20), unit: 'F', condition: ['Sunny', 'Cloudy', 'Partly Cloudy', 'Snow'][Math.floor(Math.random() * 4)], icon: ['☀️', '☁️', '⛅', '❄️'][Math.floor(Math.random() * 4)] };
+    const archiveHTML = await generateHTML(archiveDate, archiveWeather, archiveItems, archiveLinks);
+    const archivePath = path.join(archivesDir, `2025-12-${day.toString().padStart(2, '0')}.html`);
+    await fs.writeFile(archivePath, archiveHTML, 'utf-8');
+  }
+  console.log(`✓ Generated ${currentDay} archive pages`);
+
   console.log('\n✅ Update complete!');
   console.log(`📊 Found ${items.length} tomato item${items.length !== 1 ? 's' : ''} for ${today.toLocaleDateString()}`);
+}
+
+/**
+ * Get ordinal suffix for day number
+ */
+function getDayOrdinal(day) {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
 }
 
 // Run
