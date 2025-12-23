@@ -26,6 +26,7 @@ const WEATHER_API = 'https://api.weather.gov/gridpoints/OKX/33,37/forecast';
 
 // API Keys (set via environment variables)
 const NYTIMES_API_KEY = process.env.NYTIMES_API_KEY || '';
+const NYPL_API_TOKEN = process.env.NYPL_API_TOKEN || '';
 
 // Data source types for rotation
 const DATA_SOURCES = {
@@ -156,7 +157,8 @@ async function queryNYPLDigitalCollections(date) {
     const response = await fetchWithRetry(url, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)',
+        ...(NYPL_API_TOKEN && { 'Authorization': `Token token="${NYPL_API_TOKEN}"` })
       }
     });
 
@@ -473,13 +475,14 @@ async function queryClassifiedAds(date) {
     const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
     const params = new URLSearchParams({
-      proxtext: searchTerm,
-      state: 'New York',
-      format: 'json',
-      page: '1'
+      dl: 'page',
+      searchType: 'advanced',
+      qs: searchTerm,
+      sp: '1',
+      fo: 'json'
     });
 
-    const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
+    const url = `https://www.loc.gov/collections/chronicling-america/?${params.toString()}`;
     console.log(`  Querying for classified ads...`);
 
     const response = await fetchWithRetry(url, {
@@ -496,37 +499,41 @@ async function queryClassifiedAds(date) {
     const data = await response.json();
     const items = [];
 
-    if (data.items) {
-      for (const item of data.items) {
-        const ocrText = item.ocr_eng || '';
-        const lowerText = ocrText.toLowerCase();
+    if (data.results) {
+      for (const item of data.results) {
+        // Look for NYC-related content
+        const title = (item.title || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        const allText = `${title} ${desc}`;
 
-        // Look for classified ad indicators
-        const isClassified = lowerText.includes('for sale') ||
-                            lowerText.includes('wanted') ||
-                            lowerText.includes('seeds') ||
-                            lowerText.includes('plants');
+        // Must mention NYC
+        const hasNYC = allText.includes('new york') || allText.includes('manhattan') ||
+                       allText.includes('brooklyn') || allText.includes('queens') ||
+                       allText.includes('bronx') || allText.includes('staten island');
 
-        if (!isClassified) continue;
+        if (!hasNYC) continue;
 
-        // Extract year
+        // Extract year from date
         let year = null;
         if (item.date) {
-          const dateMatch = item.date.match(/(\d{4})/);
-          if (dateMatch) year = parseInt(dateMatch[1]);
+          const yearMatch = item.date.toString().match(/(\d{4})/);
+          if (yearMatch) year = parseInt(yearMatch[1]);
         }
 
-        // Create compact classified ad style description
-        let description = ocrText.substring(0, 150).trim();
+        // Create description
+        let description = item.description || item.title || '';
+        if (description.length > 200) {
+          description = description.substring(0, 200) + '...';
+        }
 
         items.push({
-          title: `Classified: ${item.date || 'Date unknown'}`,
+          title: `${item.title || 'Newspaper Advertisement'}`,
           description,
           year,
-          imageUrl: null,
-          source: 'Historic Classifieds',
+          imageUrl: item.image_url?.[0] || null,
+          source: 'Library of Congress',
           type: 'classified',
-          url: item.id ? `https://chroniclingamerica.loc.gov${item.id}` : null
+          url: item.url || null
         });
 
         if (items.length >= 3) break;
@@ -547,13 +554,14 @@ async function queryLibraryOfCongress(date) {
   try {
     // Search historic newspapers for tomato mentions in NYC papers
     const params = new URLSearchParams({
-      proxtext: 'tomato',
-      state: 'New York',
-      format: 'json',
-      page: '1'
+      dl: 'page',
+      searchType: 'advanced',
+      qs: 'tomato',
+      sp: '1',
+      fo: 'json'
     });
 
-    const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
+    const url = `https://www.loc.gov/collections/chronicling-america/?${params.toString()}`;
     console.log(`  Querying Library of Congress...`);
 
     const response = await fetchWithRetry(url, {
@@ -570,31 +578,41 @@ async function queryLibraryOfCongress(date) {
     const data = await response.json();
     const items = [];
 
-    if (data.items) {
-      for (const item of data.items) {
-        // Extract year
+    if (data.results) {
+      for (const item of data.results) {
+        // Look for NYC-related content
+        const title = (item.title || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        const allText = `${title} ${desc}`;
+
+        // Must mention NYC
+        const hasNYC = allText.includes('new york') || allText.includes('manhattan') ||
+                       allText.includes('brooklyn') || allText.includes('queens') ||
+                       allText.includes('bronx') || allText.includes('staten island');
+
+        if (!hasNYC) continue;
+
+        // Extract year from date
         let year = null;
         if (item.date) {
-          const dateMatch = item.date.match(/(\d{4})/);
-          if (dateMatch) year = parseInt(dateMatch[1]);
+          const yearMatch = item.date.toString().match(/(\d{4})/);
+          if (yearMatch) year = parseInt(yearMatch[1]);
         }
 
-        // Get newspaper title and location
-        const newspaper = item.title || 'Unknown newspaper';
-        const city = item.city?.[0] || '';
-
-        // Create description from OCR text snippet
-        let description = item.ocr_eng || '';
-        description = description.substring(0, 200);
+        // Create description
+        let description = item.description || item.title || '';
+        if (description.length > 200) {
+          description = description.substring(0, 200) + '...';
+        }
 
         items.push({
-          title: `${newspaper} - ${item.date || 'Unknown date'}`,
+          title: item.title || 'Historic Newspaper Article',
           description,
           year,
-          imageUrl: null,
+          imageUrl: item.image_url?.[0] || null,
           source: 'Library of Congress',
           type: 'newspaper',
-          url: item.id ? `https://chroniclingamerica.loc.gov${item.id}` : null
+          url: item.url || null
         });
 
         if (items.length >= 5) break;
@@ -1141,7 +1159,7 @@ function escapeHtml(text) {
  */
 function getSampleArchiveData(date) {
   // Sample archival items for fallback when APIs are unavailable
-  // Images set to null to avoid broken image links
+  // URLs removed to avoid linking to wrong content
   const samples = [
     {
       title: 'Pushcart vendor selling vegetables on streets of New York City',
@@ -1150,7 +1168,7 @@ function getSampleArchiveData(date) {
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47e3-5a7a-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Tomato Stand at Washington Market',
@@ -1159,7 +1177,7 @@ function getSampleArchiveData(date) {
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47e1-9ad8-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Essex Street Market Interior',
@@ -1168,7 +1186,7 @@ function getSampleArchiveData(date) {
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47e3-5fc1-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Victory Gardens in New York City',
@@ -1186,7 +1204,7 @@ function getSampleArchiveData(date) {
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
-      url: 'https://digitalcollections.nypl.org/items/510d47e2-0a33-a3d9-e040-e00a18064a99'
+      url: null
     },
     {
       title: 'Greenmarket Farmers Bring Fresh Produce to Manhattan',
