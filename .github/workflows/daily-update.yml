@@ -28,6 +28,9 @@ jobs:
 
       - name: Run daily update
         run: npm run update
+        env:
+          NYPL_API_TOKEN: ${{ secrets.NYPL_API_TOKEN }}
+          NYTIMES_API_KEY: ${{ secrets.NYTIMES_API_KEY }}
 
       - name: Commit and push changes
         run: |

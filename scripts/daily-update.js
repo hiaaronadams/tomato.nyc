@@ -475,14 +475,13 @@ async function queryClassifiedAds(date) {
     const searchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
     const params = new URLSearchParams({
-      dl: 'page',
-      searchType: 'advanced',
-      qs: searchTerm,
-      sp: '1',
-      fo: 'json'
+      q: `${searchTerm} New York`,
+      fo: 'json',
+      c: 100,
+      at: 'results,pagination'
     });
 
-    const url = `https://www.loc.gov/collections/chronicling-america/?${params.toString()}`;
+    const url = `https://www.loc.gov/search/?${params.toString()}`;
     console.log(`  Querying for classified ads...`);
 
     const response = await fetchWithRetry(url, {
@@ -554,14 +553,13 @@ async function queryLibraryOfCongress(date) {
   try {
     // Search historic newspapers for tomato mentions in NYC papers
     const params = new URLSearchParams({
-      dl: 'page',
-      searchType: 'advanced',
-      qs: 'tomato',
-      sp: '1',
-      fo: 'json'
+      q: 'tomato New York',
+      fo: 'json',
+      c: 100,
+      at: 'results,pagination'
     });
 
-    const url = `https://www.loc.gov/collections/chronicling-america/?${params.toString()}`;
+    const url = `https://www.loc.gov/search/?${params.toString()}`;
     console.log(`  Querying Library of Congress...`);
 
     const response = await fetchWithRetry(url, {
