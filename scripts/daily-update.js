@@ -1438,7 +1438,7 @@ async function main() {
       const ordinal = getDayOrdinal(dayNum);
 
       archiveLinks.push({
-        url: `archives/2025-12-${day.toString().padStart(2, '0')}.html`,
+        url: `/archives/2025-12-${day.toString().padStart(2, '0')}`,
         label: `${monthName} ${dayNum}${ordinal}`
       });
     }
