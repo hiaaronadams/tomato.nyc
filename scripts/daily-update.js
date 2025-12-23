@@ -171,21 +171,19 @@ async function queryNYPLDigitalCollections(date) {
     const items = [];
 
     if (data.nyplAPI?.response?.result) {
+      console.log(`  Found ${data.nyplAPI.response.result.length} total results from NYPL`);
+
       for (const item of data.nyplAPI.response.result) {
-        // STRICT FILTERING: Must mention BOTH tomato AND NYC
+        // NYPL is NYC-focused, so just verify tomato mention
         const title = (item.title || '').toLowerCase();
         const desc = (item.description || '').toLowerCase();
         const note = (item.note || '').toLowerCase();
         const allText = `${title} ${desc} ${note}`;
 
         const hasTomato = allText.includes('tomato');
-        const hasNYC = allText.includes('new york') || allText.includes('nyc') ||
-                       allText.includes('manhattan') || allText.includes('brooklyn') ||
-                       allText.includes('queens') || allText.includes('bronx') ||
-                       allText.includes('staten island');
 
-        // Skip if doesn't mention BOTH NYC AND tomatoes
-        if (!hasTomato || !hasNYC) continue;
+        // Skip if doesn't mention tomatoes
+        if (!hasTomato) continue;
 
         // Extract image URL from API response
         let imageUrl = null;
@@ -198,9 +196,6 @@ async function queryNYPLDigitalCollections(date) {
                                   links[0];
           imageUrl = preferredImage?.href || null;
         }
-
-        // Only include items that have images - no point showing items without them
-        if (!imageUrl) continue;
 
         // Extract year from date field
         let year = null;
@@ -500,9 +495,17 @@ async function queryClassifiedAds(date) {
 
     if (data.results) {
       for (const item of data.results) {
+        // Handle description - it might be an array or string
+        let descText = '';
+        if (Array.isArray(item.description)) {
+          descText = item.description.join(' ');
+        } else if (typeof item.description === 'string') {
+          descText = item.description;
+        }
+
         // Look for NYC-related content
         const title = (item.title || '').toLowerCase();
-        const desc = (item.description || '').toLowerCase();
+        const desc = descText.toLowerCase();
         const allText = `${title} ${desc}`;
 
         // Must mention NYC
@@ -520,7 +523,7 @@ async function queryClassifiedAds(date) {
         }
 
         // Create description
-        let description = item.description || item.title || '';
+        let description = descText || item.title || '';
         if (description.length > 200) {
           description = description.substring(0, 200) + '...';
         }
@@ -578,9 +581,17 @@ async function queryLibraryOfCongress(date) {
 
     if (data.results) {
       for (const item of data.results) {
+        // Handle description - it might be an array or string
+        let descText = '';
+        if (Array.isArray(item.description)) {
+          descText = item.description.join(' ');
+        } else if (typeof item.description === 'string') {
+          descText = item.description;
+        }
+
         // Look for NYC-related content
         const title = (item.title || '').toLowerCase();
-        const desc = (item.description || '').toLowerCase();
+        const desc = descText.toLowerCase();
         const allText = `${title} ${desc}`;
 
         // Must mention NYC
@@ -598,7 +609,7 @@ async function queryLibraryOfCongress(date) {
         }
 
         // Create description
-        let description = item.description || item.title || '';
+        let description = descText || item.title || '';
         if (description.length > 200) {
           description = description.substring(0, 200) + '...';
         }
