@@ -519,10 +519,14 @@ async function queryClassifiedAds(date) {
           descText = item.description;
         }
 
-        // Look for NYC-related content
+        // Look for NYC-related content AND tomatoes
         const title = (item.title || '').toLowerCase();
         const desc = descText.toLowerCase();
         const allText = `${title} ${desc}`;
+
+        // Must mention tomatoes
+        const hasTomato = allText.includes('tomato');
+        if (!hasTomato) continue;
 
         // Must mention NYC
         const hasNYC = allText.includes('new york') || allText.includes('manhattan') ||
@@ -605,10 +609,14 @@ async function queryLibraryOfCongress(date) {
           descText = item.description;
         }
 
-        // Look for NYC-related content
+        // Look for NYC-related content AND tomatoes
         const title = (item.title || '').toLowerCase();
         const desc = descText.toLowerCase();
         const allText = `${title} ${desc}`;
+
+        // Must mention tomatoes
+        const hasTomato = allText.includes('tomato');
+        if (!hasTomato) continue;
 
         // Must mention NYC
         const hasNYC = allText.includes('new york') || allText.includes('manhattan') ||
@@ -997,11 +1005,21 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
             margin: 20px 0;
         }
 
+        .masthead a {
+            text-decoration: none;
+            display: inline-block;
+        }
+
         .masthead-logo {
             max-width: 650px;
             width: 100%;
             height: auto;
             display: inline-block;
+            cursor: pointer;
+        }
+
+        .masthead-logo:hover {
+            opacity: 0.9;
         }
 
         .tagline {
@@ -1184,7 +1202,7 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
                 <div class="weather">${weather.icon} ${weather.temp}°${weather.unit || 'F'} ${weather.condition}</div>
             </div>
             <div class="masthead">
-                <img src="https://tomatolab.org/wp-content/uploads/2025/12/masthead.png" alt="The Tomato Times" class="masthead-logo">
+                <a href="/"><img src="https://tomatolab.org/wp-content/uploads/2025/12/masthead.png" alt="The Tomato Times" class="masthead-logo"></a>
             </div>
             <div class="tagline">On This Day in NYC Tomato History</div>
         </header>
