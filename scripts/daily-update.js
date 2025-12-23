@@ -155,7 +155,8 @@ async function queryNYPLDigitalCollections(date) {
 
     const response = await fetchWithRetry(url, {
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
       }
     });
 
@@ -257,7 +258,11 @@ async function queryNYCArchives(date) {
 
     console.log(`  Querying NYC Archives...`);
 
-    const response = await fetchWithRetry(url);
+    const response = await fetchWithRetry(url, {
+      headers: {
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+      }
+    });
 
     if (!response.ok) {
       console.warn(`NYC Archives API failed: ${response.status}`);
@@ -293,7 +298,11 @@ async function queryNYTimesArchive(date) {
 
     console.log(`  Querying NYTimes Archive...`);
 
-    const response = await fetchWithRetry(url);
+    const response = await fetchWithRetry(url, {
+      headers: {
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+      }
+    });
 
     if (!response.ok) {
       console.warn(`NYTimes API failed: ${response.status}`);
@@ -381,7 +390,11 @@ async function queryWikimediaCommons(date) {
     const url = `${WIKIMEDIA_API}?${params.toString()}`;
     console.log(`  Querying Wikimedia Commons...`);
 
-    const response = await fetchWithRetry(url);
+    const response = await fetchWithRetry(url, {
+      headers: {
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+      }
+    });
 
     if (!response.ok) {
       console.warn(`Wikimedia API failed: ${response.status}`);
@@ -469,7 +482,11 @@ async function queryClassifiedAds(date) {
     const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
     console.log(`  Querying for classified ads...`);
 
-    const response = await fetchWithRetry(url);
+    const response = await fetchWithRetry(url, {
+      headers: {
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+      }
+    });
 
     if (!response.ok) {
       console.warn(`LOC Classifieds API failed: ${response.status}`);
@@ -539,7 +556,11 @@ async function queryLibraryOfCongress(date) {
     const url = `https://chroniclingamerica.loc.gov/search/pages/results/?${params.toString()}`;
     console.log(`  Querying Library of Congress...`);
 
-    const response = await fetchWithRetry(url);
+    const response = await fetchWithRetry(url, {
+      headers: {
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc)'
+      }
+    });
 
     if (!response.ok) {
       console.warn(`LOC API failed: ${response.status}`);
@@ -594,7 +615,7 @@ async function getNYCWeather() {
   try {
     const response = await fetchWithRetry(WEATHER_API, {
       headers: {
-        'User-Agent': '(tomato.nyc, contact@tomato.nyc)'
+        'User-Agent': 'tomato.nyc/1.0 (+https://tomato.nyc; contact@tomato.nyc)'
       }
     });
 
