@@ -1113,8 +1113,22 @@ async function generateHTML(date, weather, items) {
             text-align: right;
         }
 
+        .sources-heading {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
         .source-line {
             margin: 5px 0;
+        }
+
+        footer a {
+            color: #FF223C;
+            text-decoration: underline;
+        }
+
+        footer a:hover {
+            text-decoration: none;
         }
 
         @media (max-width: 768px) {
@@ -1165,10 +1179,11 @@ async function generateHTML(date, weather, items) {
 
         <footer>
             <div class="footer-left">
+                <p class="sources-heading">Sources</p>
                 ${sourcesHTML || '<p class="source-line">No sources available</p>'}
             </div>
             <div class="footer-right">
-                <p>A production of Tomato Laboratories</p>
+                <p>A production of <a href="https://tomatolab.org" target="_blank" rel="noopener noreferrer">Tomato Laboratories</a></p>
             </div>
         </footer>
     </div>
