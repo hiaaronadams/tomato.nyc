@@ -213,14 +213,28 @@ async function queryNYPLDigitalCollections(date) {
           imageUrl = preferredImage?.href || null;
         }
 
-        // Extract year from date field
+        // Extract date from date field (year, month, day)
         let year = null;
+        let month = null;
+        let day = null;
+
         if (item.dateDigitized) {
-          year = new Date(item.dateDigitized).getFullYear();
+          const d = new Date(item.dateDigitized);
+          year = d.getFullYear();
+          month = d.getMonth() + 1;
+          day = d.getDate();
         } else if (item.date) {
-          // Try to parse year from date string
-          const yearMatch = item.date.match(/\d{4}/);
-          if (yearMatch) year = parseInt(yearMatch[0]);
+          // Try to parse full date from date string
+          const fullDate = new Date(item.date);
+          if (!isNaN(fullDate.getTime())) {
+            year = fullDate.getFullYear();
+            month = fullDate.getMonth() + 1;
+            day = fullDate.getDate();
+          } else {
+            // Fall back to just extracting year
+            const yearMatch = item.date.match(/\d{4}/);
+            if (yearMatch) year = parseInt(yearMatch[0]);
+          }
         }
 
         // Get description
@@ -241,6 +255,8 @@ async function queryNYPLDigitalCollections(date) {
           title: item.title || 'Untitled',
           imageUrl,
           year,
+          month,
+          day,
           description,
           source: 'NYPL Digital Collections',
           type: 'archive',
@@ -909,13 +925,25 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
           ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
           : escapeHtml(item.title);
 
+        // Format date as "Month Day, Year" or just "Year" if month/day not available
+        let dateDisplay = 'Date unknown';
+        if (item.year) {
+          if (item.month && item.day) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                'July', 'August', 'September', 'October', 'November', 'December'];
+            dateDisplay = `${monthNames[item.month - 1]} ${item.day}, ${item.year}`;
+          } else {
+            dateDisplay = String(item.year);
+          }
+        }
+
         return `
       <div class="snippet">
         ${hasImage ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" class="snippet-image">` : ''}
         <div class="snippet-content">
           <h3>${headline}</h3>
           <p class="snippet-source">${escapeHtml(item.source)}</p>
-          <p class="snippet-meta">${item.year || 'Date unknown'}</p>
+          <p class="snippet-meta">${dateDisplay}</p>
           <p class="snippet-desc">${escapeHtml(item.description || '')}</p>
         </div>
       </div>`;
@@ -1252,15 +1280,19 @@ function escapeHtml(text) {
 
 /**
  * Generate sample archival data for testing/fallback
+ * Returns items that match the given date's month and day
  */
 function getSampleArchiveData(date) {
-  // Sample archival items for fallback when APIs are unavailable
-  // URLs removed to avoid linking to wrong content
-  const samples = [
+  const targetMonth = date.getMonth() + 1; // 1-12
+  const targetDay = date.getDate(); // 1-31
+
+  // Sample archival items with specific dates throughout the year
+  // Each item has a full date (month, day, year) and only shows on matching month/day
+  const allSamples = [
     {
       title: 'Pushcart vendor selling vegetables on streets of New York City',
       description: 'Photograph of street vendor with produce cart in Manhattan',
-      year: 1943,
+      date: new Date(1943, 6, 15), // July 15, 1943
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1269,7 +1301,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Tomato Stand at Washington Market',
       description: 'Fresh tomatoes displayed at historic Washington Market in lower Manhattan',
-      year: 1936,
+      date: new Date(1936, 7, 23), // August 23, 1936
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1278,7 +1310,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Essex Street Market Interior',
       description: 'Vendors selling fresh produce including tomatoes at Essex Street Market on the Lower East Side',
-      year: 1940,
+      date: new Date(1940, 11, 5), // December 5, 1940
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1287,7 +1319,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Victory Gardens in New York City',
       description: 'Brooklyn residents growing tomatoes in rooftop victory gardens during World War II',
-      year: 1943,
+      date: new Date(1943, 11, 12), // December 12, 1943
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1296,7 +1328,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Fulton Fish Market Produce Area',
       description: 'Crates of fresh vegetables at Fulton Market, known for both fish and produce sales',
-      year: 1956,
+      date: new Date(1956, 8, 8), // September 8, 1956
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1305,7 +1337,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Greenmarket Farmers Bring Fresh Produce to Manhattan',
       description: 'Union Square Greenmarket opens, bringing locally-grown vegetables including heirloom tomatoes to Manhattan shoppers',
-      year: 1976,
+      date: new Date(1976, 6, 17), // July 17, 1976
       imageUrl: null,
       source: 'The New York Times Archive',
       type: 'article',
@@ -1314,7 +1346,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Tomato Pushcarts Line Orchard Street',
       description: 'Street vendors display fresh tomatoes along bustling Orchard Street market on the Lower East Side',
-      year: 1950,
+      date: new Date(1950, 5, 3), // June 3, 1950
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1323,7 +1355,7 @@ function getSampleArchiveData(date) {
     {
       title: 'Canning Tomatoes in Brooklyn Kitchens',
       description: 'Brooklyn families preserve summer tomatoes for winter use during the Depression era',
-      year: 1932,
+      date: new Date(1932, 11, 23), // December 23, 1932
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1331,7 +1363,20 @@ function getSampleArchiveData(date) {
     }
   ];
 
-  return samples;
+  // Filter items that match this specific month and day
+  const matchingItems = allSamples.filter(item => {
+    const itemMonth = item.date.getMonth() + 1;
+    const itemDay = item.date.getDate();
+    return itemMonth === targetMonth && itemDay === targetDay;
+  }).map(item => ({
+    ...item,
+    year: item.date.getFullYear(),
+    month: item.date.getMonth() + 1,
+    day: item.date.getDate()
+  }));
+
+  // If no matching items, return empty array (will show "no items" message)
+  return matchingItems;
 }
 
 /**
