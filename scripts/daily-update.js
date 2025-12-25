@@ -1289,37 +1289,75 @@ function getSampleArchiveData(date) {
   // Sample archival items with specific dates throughout the year
   // Each item has a full date (month, day, year) and only shows on matching month/day
   const allSamples = [
+    // December items (for current testing)
     {
-      title: 'Pushcart vendor selling vegetables on streets of New York City',
-      description: 'Photograph of street vendor with produce cart in Manhattan',
-      date: new Date(1943, 6, 15), // July 15, 1943
-      imageUrl: null,
-      source: 'NYPL Digital Collections',
+      title: 'Canning Tomatoes in Brooklyn Kitchens',
+      description: 'Brooklyn families preserve summer tomatoes for winter use during the Depression era',
+      date: new Date(1932, 11, 23), // December 23, 1932
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b29000/8b29900/8b29919v.jpg',
+      source: 'Library of Congress',
       type: 'archive',
-      url: null
-    },
-    {
-      title: 'Tomato Stand at Washington Market',
-      description: 'Fresh tomatoes displayed at historic Washington Market in lower Manhattan',
-      date: new Date(1936, 7, 23), // August 23, 1936
-      imageUrl: null,
-      source: 'NYPL Digital Collections',
-      type: 'archive',
-      url: null
-    },
-    {
-      title: 'Essex Street Market Interior',
-      description: 'Vendors selling fresh produce including tomatoes at Essex Street Market on the Lower East Side',
-      date: new Date(1940, 11, 5), // December 5, 1940
-      imageUrl: null,
-      source: 'NYPL Digital Collections',
-      type: 'archive',
-      url: null
+      url: 'https://www.loc.gov/pictures/item/2017762891/'
     },
     {
       title: 'Victory Gardens in New York City',
       description: 'Brooklyn residents growing tomatoes in rooftop victory gardens during World War II',
       date: new Date(1943, 11, 12), // December 12, 1943
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8c32000/8c32600/8c32671v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017878161/'
+    },
+    {
+      title: 'Essex Street Market Interior',
+      description: 'Vendors selling fresh produce including tomatoes at Essex Street Market on the Lower East Side',
+      date: new Date(1940, 11, 5), // December 5, 1940
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b07000/8b07900/8b07982v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017762174/'
+    },
+    {
+      title: 'Washington Market Tomato Vendors',
+      description: 'Fresh produce vendors at Washington Market displaying tomatoes and vegetables',
+      date: new Date(1938, 11, 18), // December 18, 1938
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8a26000/8a26900/8a26993v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017761513/'
+    },
+    {
+      title: 'NYC Greenmarket Opens at Union Square',
+      description: 'First farmers market brings fresh tomatoes directly from upstate farms to Manhattan shoppers',
+      date: new Date(1976, 11, 1), // December 1, 1976
+      imageUrl: null,
+      source: 'The New York Times Archive',
+      type: 'article',
+      url: null
+    },
+    {
+      title: 'Tomato Packinghouse Workers in Brooklyn',
+      description: 'Workers sorting and packing tomatoes at Brooklyn produce distribution center',
+      date: new Date(1952, 11, 15), // December 15, 1952
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8c34000/8c34100/8c34165v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017878725/'
+    },
+    // Other months
+    {
+      title: 'Pushcart vendor selling vegetables on streets of New York City',
+      description: 'Photograph of street vendor with produce cart in Manhattan',
+      date: new Date(1943, 6, 15), // July 15, 1943
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b30000/8b30000/8b30072v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017763097/'
+    },
+    {
+      title: 'Tomato Stand at Washington Market',
+      description: 'Fresh tomatoes displayed at historic Washington Market in lower Manhattan',
+      date: new Date(1936, 7, 23), // August 23, 1936
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
@@ -1347,15 +1385,6 @@ function getSampleArchiveData(date) {
       title: 'Tomato Pushcarts Line Orchard Street',
       description: 'Street vendors display fresh tomatoes along bustling Orchard Street market on the Lower East Side',
       date: new Date(1950, 5, 3), // June 3, 1950
-      imageUrl: null,
-      source: 'NYPL Digital Collections',
-      type: 'archive',
-      url: null
-    },
-    {
-      title: 'Canning Tomatoes in Brooklyn Kitchens',
-      description: 'Brooklyn families preserve summer tomatoes for winter use during the Depression era',
-      date: new Date(1932, 11, 23), // December 23, 1932
       imageUrl: null,
       source: 'NYPL Digital Collections',
       type: 'archive',
