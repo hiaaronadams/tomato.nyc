@@ -1503,9 +1503,9 @@ async function main() {
   const currentDay = today.getDate();
   const currentMonth = today.getMonth(); // 11 for December
 
-  // Generate links from Dec 1 to yesterday (or today if today > 1)
-  if (currentMonth === 11 && currentDay >= 1) { // December
-    for (let day = 1; day <= currentDay; day++) {
+  // Generate links from Dec 15 to yesterday (or today if today >= 15)
+  if (currentMonth === 11 && currentDay >= 15) { // December
+    for (let day = 15; day <= currentDay; day++) {
       const archiveDate = new Date(2025, 11, day);
       const monthName = archiveDate.toLocaleDateString('en-US', { month: 'long' });
       const dayNum = archiveDate.getDate();
@@ -1532,8 +1532,8 @@ async function main() {
   const archivesDir = path.join(ROOT_DIR, 'archives');
   await ensureDir(archivesDir);
 
-  // Generate each archive page from Dec 1 to today
-  for (let day = 1; day <= currentDay; day++) {
+  // Generate each archive page from Dec 15 to today
+  for (let day = 15; day <= currentDay; day++) {
     const archiveDate = new Date(2025, 11, day);
     const archiveItems = getSampleArchiveData(archiveDate); // Use varied sample data for now
     const archiveWeather = { temp: 30 + Math.floor(Math.random() * 20), unit: 'F', condition: ['Sunny', 'Cloudy', 'Partly Cloudy', 'Snow'][Math.floor(Math.random() * 4)], icon: ['☀️', '☁️', '⛅', '❄️'][Math.floor(Math.random() * 4)] };
@@ -1541,7 +1541,7 @@ async function main() {
     const archivePath = path.join(archivesDir, `2025-12-${day.toString().padStart(2, '0')}.html`);
     await fs.writeFile(archivePath, archiveHTML, 'utf-8');
   }
-  console.log(`✓ Generated ${currentDay} archive pages`);
+  console.log(`✓ Generated ${currentDay - 14} archive pages`);
 
   console.log('\n✅ Update complete!');
   console.log(`📊 Found ${items.length} tomato item${items.length !== 1 ? 's' : ''} for ${today.toLocaleDateString()}`);
