@@ -2,8 +2,6 @@
 
 *On This Day in NYC Tomato History*
 
-A daily newspaper showcasing tomato-related items from New York City's culinary history. Each day, the site displays historic menu items featuring tomatoes from NYC restaurants on this day in history (any year), along with current weather.
-
 ## Features
 
 - **Daily Updates**: Automatically updates at 6am EST with new content

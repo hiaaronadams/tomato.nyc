@@ -2,8 +2,8 @@ name: Daily Tomato Update
 
 on:
   schedule:
-    # Run at 6:00 AM EST (11:00 AM UTC) every day
-    - cron: '0 11 * * *'
+    # Run at midnight EST (5:00 AM UTC) every day
+    - cron: '0 5 * * *'
   workflow_dispatch: # Allow manual triggering
 
 permissions:
@@ -28,10 +28,22 @@ jobs:
 
       - name: Run daily update
         run: npm run update
+        env:
+          NYPL_API_TOKEN: ${{ secrets.NYPL_API_TOKEN }}
+          NYTIMES_API_KEY: ${{ secrets.NYTIMES_API_KEY }}
 
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Daily Tomato Bot"
-          git add index.html
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Daily update: $(date +'%Y-%m-%d')" && git push)
+          git add index.html archives/
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "Daily update: $(date +'%Y-%m-%d')"
+            # Push to the current branch
+            git push
+            # Also push to the GitHub Pages serving branch
+            git fetch origin claude/nyc-tomato-open-data-uZssD
+            git checkout claude/nyc-tomato-open-data-uZssD
+            git merge --no-edit ${{ github.ref_name }}
+            git push origin claude/nyc-tomato-open-data-uZssD
+          fi
