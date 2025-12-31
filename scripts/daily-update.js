@@ -913,22 +913,22 @@ async function gatherAllItems(date) {
 }
 
 /**
- * Get a random tomato variety or fact for the day
+ * Get a regional tomato for the day
  */
 function getTomatoOfTheDay() {
   const tomatoes = [
-    { name: 'Brandywine', description: 'Heirloom beefsteak variety with rich, complex flavor. Popular in NYC greenmarkets since the 1980s.' },
-    { name: 'San Marzano', description: 'Italian plum tomato prized for sauce. Grown by Italian immigrants in Brooklyn and Queens gardens.' },
-    { name: 'Cherokee Purple', description: 'Pre-1890 heirloom with dusky rose-purple color. Favored by NYC farm-to-table restaurants.' },
-    { name: 'Green Zebra', description: 'Tangy striped variety developed in 1983. A Union Square Greenmarket favorite.' },
-    { name: 'Black Krim', description: 'Russian heirloom brought to NYC by Eastern European immigrants. Deep burgundy-black color.' },
-    { name: 'Mortgage Lifter', description: '1930s West Virginia variety named because sales paid off the creator\'s house. Found at NYC farmers markets.' },
-    { name: 'Yellow Pear', description: 'Small yellow teardrop tomato. Grown in NYC rooftop gardens and community plots.' },
-    { name: 'Costoluto Genovese', description: 'Italian ribbed variety favored by NYC Italian restaurants for its meaty texture.' },
-    { name: 'Sungold', description: 'Sweet orange cherry tomato. A modern hybrid popular at NYC greenmarkets since the 1990s.' },
-    { name: 'Rutgers', description: 'New Jersey variety developed in 1934. Dominant commercial tomato in NYC markets mid-century.' },
-    { name: 'Roma', description: 'Classic paste tomato. Essential for NYC pizza and Italian-American cuisine.' },
-    { name: 'Beefsteak', description: 'Large slicing tomato perfect for sandwiches. A NYC deli staple since the early 1900s.' }
+    { name: 'Naples, Italy', description: 'San Marzano - Volcanic soil of Mount Vesuvius creates the world\'s best pizza tomatoes.' },
+    { name: 'Provence, France', description: 'Coeur de Boeuf - Giant ribbed heirloom prized for salads at Marseille markets.' },
+    { name: 'Santorini, Greece', description: 'Tomataki - Tiny, intensely sweet cherry tomatoes grown in volcanic ash.' },
+    { name: 'Andalusia, Spain', description: 'Pera - Elongated plum variety essential for gazpacho and pan con tomate.' },
+    { name: 'Mexico City, Mexico', description: 'Tomatillo - Green husked fruit used in salsa verde, distinct from red tomatoes.' },
+    { name: 'Jersey Shore, USA', description: 'Jersey Tomato - Sandy soil beefsteaks famous across the Northeast.' },
+    { name: 'Los Angeles, USA', description: 'Early Girl - Heat-tolerant hybrid that thrives in Southern California sun.' },
+    { name: 'Florida Keys, USA', description: 'Everglades - Small wild tomato adapted to humid subtropical climate.' },
+    { name: 'Oaxaca, Mexico', description: 'Costeno - Regional heirloom used in mole sauces and traditional cooking.' },
+    { name: 'Sicily, Italy', description: 'Pachino - IGP-protected cherry tomatoes grown near Syracuse, intense flavor.' },
+    { name: 'Tel Aviv, Israel', description: 'Desert tomatoes - Drip-irrigated varieties bred for arid climate, exported worldwide.' },
+    { name: 'Bangkok, Thailand', description: 'Cherry tomatoes - Small sweet varieties used in som tam (papaya salad).' }
   ];
 
   const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
