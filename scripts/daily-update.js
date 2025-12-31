@@ -917,18 +917,18 @@ async function gatherAllItems(date) {
  */
 function getTomatoOfTheDay() {
   const tomatoes = [
-    { name: 'Naples, Italy', description: 'San Marzano - Volcanic soil of Mount Vesuvius creates the world\'s best pizza tomatoes.' },
-    { name: 'Provence, France', description: 'Coeur de Boeuf - Giant ribbed heirloom prized for salads at Marseille markets.' },
-    { name: 'Santorini, Greece', description: 'Tomataki - Tiny, intensely sweet cherry tomatoes grown in volcanic ash.' },
-    { name: 'Andalusia, Spain', description: 'Pera - Elongated plum variety essential for gazpacho and pan con tomate.' },
-    { name: 'Mexico City, Mexico', description: 'Tomatillo - Green husked fruit used in salsa verde, distinct from red tomatoes.' },
-    { name: 'Jersey Shore, USA', description: 'Jersey Tomato - Sandy soil beefsteaks famous across the Northeast.' },
-    { name: 'Los Angeles, USA', description: 'Early Girl - Heat-tolerant hybrid that thrives in Southern California sun.' },
-    { name: 'Florida Keys, USA', description: 'Everglades - Small wild tomato adapted to humid subtropical climate.' },
-    { name: 'Oaxaca, Mexico', description: 'Costeno - Regional heirloom used in mole sauces and traditional cooking.' },
-    { name: 'Sicily, Italy', description: 'Pachino - IGP-protected cherry tomatoes grown near Syracuse, intense flavor.' },
-    { name: 'Tel Aviv, Israel', description: 'Desert tomatoes - Drip-irrigated varieties bred for arid climate, exported worldwide.' },
-    { name: 'Bangkok, Thailand', description: 'Cherry tomatoes - Small sweet varieties used in som tam (papaya salad).' }
+    { name: 'Naples, Italy', description: 'San Marzano - Nightshade growing in volcanic ash, the way Vesuvius shapes flavor.' },
+    { name: 'Provence, France', description: 'Coeur de Boeuf - Giant hearts of the nightshade family in Marseille sunlight.' },
+    { name: 'Santorini, Greece', description: 'Tomataki - In the nightshade, tiny sweet fruit born from volcanic earth.' },
+    { name: 'Andalusia, Spain', description: 'Pera - The way we go in Spanish soil, nightshade blood for gazpacho.' },
+    { name: 'Mexico City, Mexico', description: 'Tomatillo - Green nightshade in husks, the ancient way of salsa verde.' },
+    { name: 'Jersey Shore, USA', description: 'Jersey Tomato - Sandy nightshade beefsteaks, the way the Northeast remembers summer.' },
+    { name: 'Los Angeles, USA', description: 'Early Girl - In the nightshade we go west, California sun on hybrid vines.' },
+    { name: 'Florida Keys, USA', description: 'Everglades - Wild nightshade in humid air, the way we go in the swamps.' },
+    { name: 'Oaxaca, Mexico', description: 'Costeno - Nightshade of mole country, the way tradition flows through seeds.' },
+    { name: 'Sicily, Italy', description: 'Pachino - Cherry nightshade near Syracuse, the protected way of ancient flavor.' },
+    { name: 'Tel Aviv, Israel', description: 'Desert nightshade - The way we go in arid lands, drip by drip through sand.' },
+    { name: 'Bangkok, Thailand', description: 'In the nightshade of som tam, small sweet fruits the way of papaya salad.' }
   ];
 
   const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
