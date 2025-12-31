@@ -879,6 +879,16 @@ async function gatherAllItems(date) {
     console.warn('Classified ads search failed:', err.message);
   }
 
+  // 7. NYPL Menu Data (What's on the Menu)
+  try {
+    console.log('🍽️  Searching NYPL Menu Archive...');
+    const menuItems = await findTomatoItemsForDate(date);
+    console.log(`✓ Found ${menuItems.length} menu items`);
+    allItems.push(...menuItems);
+  } catch (err) {
+    console.warn('Menu archive search failed:', err.message);
+  }
+
   // If no archival items found, use sample archive data
   if (allItems.length === 0) {
     console.log('⚠️  No archival items found, using sample data...');
@@ -1361,6 +1371,114 @@ function getSampleArchiveData(date) {
       source: 'Library of Congress',
       type: 'archive',
       url: 'https://www.loc.gov/pictures/item/2017763536/'
+    },
+    {
+      title: 'Stewed Tomatoes - Hotel Astor Menu',
+      description: '25¢ • Hotel Astor',
+      date: new Date(1920, 11, 16), // December 16, 1920
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato Soup - Waldorf-Astoria',
+      description: '35¢ • Waldorf-Astoria Hotel',
+      date: new Date(1935, 11, 17), // December 17, 1935
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Sliced Tomatoes - Delmonico\'s',
+      description: '30¢ • Delmonico\'s Restaurant',
+      date: new Date(1925, 11, 19), // December 19, 1925
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato and Lettuce Salad - Schrafft\'s',
+      description: '25¢ • Schrafft\'s Restaurant',
+      date: new Date(1940, 11, 20), // December 20, 1940
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Cream of Tomato Soup - Automat',
+      description: '10¢ • Horn & Hardart Automat',
+      date: new Date(1948, 11, 21), // December 21, 1948
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Baked Tomatoes au Gratin - Plaza Hotel',
+      description: '45¢ • The Plaza Hotel',
+      date: new Date(1955, 11, 22), // December 22, 1955
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato Juice Cocktail - 21 Club',
+      description: '50¢ • 21 Club',
+      date: new Date(1962, 11, 24), // December 24, 1962
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato Aspic - Four Seasons',
+      description: '$1.25 • The Four Seasons Restaurant',
+      date: new Date(1965, 11, 25), // December 25, 1965
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Stuffed Tomatoes - Russian Tea Room',
+      description: '75¢ • Russian Tea Room',
+      date: new Date(1952, 11, 26), // December 26, 1952
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Fried Green Tomatoes - Lüchow\'s',
+      description: '40¢ • Lüchow\'s German Restaurant',
+      date: new Date(1938, 11, 27), // December 27, 1938
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Broiled Tomatoes - Keen\'s Chophouse',
+      description: '35¢ • Keen\'s Chophouse',
+      date: new Date(1945, 11, 28), // December 28, 1945
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato Rarebit - Longchamps',
+      description: '55¢ • Longchamps Restaurant',
+      date: new Date(1958, 11, 30), // December 30, 1958
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
     },
     // Other months
     {
