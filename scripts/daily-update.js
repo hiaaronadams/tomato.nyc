@@ -913,6 +913,30 @@ async function gatherAllItems(date) {
 }
 
 /**
+ * Get a random tomato variety or fact for the day
+ */
+function getTomatoOfTheDay() {
+  const tomatoes = [
+    { name: 'Brandywine', description: 'Heirloom beefsteak variety with rich, complex flavor. Popular in NYC greenmarkets since the 1980s.' },
+    { name: 'San Marzano', description: 'Italian plum tomato prized for sauce. Grown by Italian immigrants in Brooklyn and Queens gardens.' },
+    { name: 'Cherokee Purple', description: 'Pre-1890 heirloom with dusky rose-purple color. Favored by NYC farm-to-table restaurants.' },
+    { name: 'Green Zebra', description: 'Tangy striped variety developed in 1983. A Union Square Greenmarket favorite.' },
+    { name: 'Black Krim', description: 'Russian heirloom brought to NYC by Eastern European immigrants. Deep burgundy-black color.' },
+    { name: 'Mortgage Lifter', description: '1930s West Virginia variety named because sales paid off the creator\'s house. Found at NYC farmers markets.' },
+    { name: 'Yellow Pear', description: 'Small yellow teardrop tomato. Grown in NYC rooftop gardens and community plots.' },
+    { name: 'Costoluto Genovese', description: 'Italian ribbed variety favored by NYC Italian restaurants for its meaty texture.' },
+    { name: 'Sungold', description: 'Sweet orange cherry tomato. A modern hybrid popular at NYC greenmarkets since the 1990s.' },
+    { name: 'Rutgers', description: 'New Jersey variety developed in 1934. Dominant commercial tomato in NYC markets mid-century.' },
+    { name: 'Roma', description: 'Classic paste tomato. Essential for NYC pizza and Italian-American cuisine.' },
+    { name: 'Beefsteak', description: 'Large slicing tomato perfect for sandwiches. A NYC deli staple since the early 1900s.' }
+  ];
+
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const index = dayOfYear % tomatoes.length;
+  return tomatoes[index];
+}
+
+/**
  * Generate the HTML page
  */
 async function generateHTML(date, weather, items, archiveLinks = []) {
@@ -925,6 +949,9 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
 
   // Sort items by year (oldest first)
   items.sort((a, b) => (a.year || 0) - (b.year || 0));
+
+  // Get tomato of the day
+  const tomatoOfDay = getTomatoOfTheDay();
 
   // Generate grid items HTML
   const itemsHTML = items.length > 0
@@ -1065,6 +1092,30 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
             font-style: italic;
             font-size: 16px;
             margin-top: 10px;
+        }
+
+        /* Tomato of the Day */
+        .tomato-of-day {
+            background: rgba(255, 34, 60, 0.08);
+            border: 1px solid #FF223C;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .tomato-of-day h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .tomato-of-day p {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
         }
 
         /* Masonry layout - responsive columns based on screen size */
@@ -1244,6 +1295,11 @@ async function generateHTML(date, weather, items, archiveLinks = []) {
             </div>
             <div class="tagline">On This Day in NYC Tomato History</div>
         </header>
+
+        <div class="tomato-of-day">
+            <h2>🍅 ${tomatoOfDay.name}</h2>
+            <p>${tomatoOfDay.description}</p>
+        </div>
 
         <main>
             <div class="masonry">
