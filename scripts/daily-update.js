@@ -1344,6 +1344,24 @@ function getSampleArchiveData(date) {
       type: 'archive',
       url: 'https://www.loc.gov/pictures/item/2017878725/'
     },
+    {
+      title: 'Brooklyn Cannery Workers Package Tomatoes',
+      description: 'Workers at Brooklyn tomato processing plant prepare canned goods for winter distribution',
+      date: new Date(1945, 11, 29), // December 29, 1945
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8c35000/8c35200/8c35281v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017879297/'
+    },
+    {
+      title: 'NYC Restaurant Tomato Deliveries',
+      description: 'Fresh tomatoes being delivered to restaurants in midtown Manhattan for New Year\'s Eve preparations',
+      date: new Date(1958, 11, 29), // December 29, 1958
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b32000/8b32100/8b32155v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017763536/'
+    },
     // Other months
     {
       title: 'Pushcart vendor selling vegetables on streets of New York City',
