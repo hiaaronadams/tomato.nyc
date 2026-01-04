@@ -1536,6 +1536,97 @@ function getSampleArchiveData(date) {
       type: 'menu',
       url: null
     },
+    {
+      title: 'Times Square New Year\'s Eve Tomato Stand',
+      description: 'Street vendor selling fresh tomatoes to revelers gathering for the midnight celebration in Times Square',
+      date: new Date(1952, 11, 31), // December 31, 1952
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b29000/8b29800/8b29886v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017762412/'
+    },
+    {
+      title: 'New Year\'s Eve Dinner Preparation at the Waldorf',
+      description: 'Chefs preparing tomato aspic for the grand New Year\'s Eve dinner at the Waldorf-Astoria Hotel',
+      date: new Date(1938, 11, 31), // December 31, 1938
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8d33000/8d33200/8d33290v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017880521/'
+    },
+    {
+      title: 'Brooklyn Market Last Day of Year',
+      description: 'Final day of tomato sales at the Brooklyn Terminal Market before the new year',
+      date: new Date(1962, 11, 31), // December 31, 1962
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8c30000/8c30100/8c30142v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017876986/'
+    },
+    {
+      title: 'Tomato Juice Cocktail - The Plaza',
+      description: '35¢ • The Plaza Hotel New Year\'s Eve Menu',
+      date: new Date(1935, 11, 31), // December 31, 1935
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Grilled Tomato with Bacon - 21 Club',
+      description: '75¢ • 21 Club New Year\'s Eve Supper',
+      date: new Date(1948, 11, 31), // December 31, 1948
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    // January
+    {
+      title: 'Fulton Fish Market Tomato Deliveries',
+      description: 'Fresh tomatoes arriving at Fulton Fish Market for distribution to Lower Manhattan restaurants',
+      date: new Date(1955, 0, 4), // January 4, 1955
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8b30000/8b30900/8b30957v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017763211/'
+    },
+    {
+      title: 'Winter Greenhouse Tomatoes - Bronx',
+      description: 'Commercial greenhouse operation in the Bronx producing fresh tomatoes during winter months',
+      date: new Date(1963, 0, 4), // January 4, 1963
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8c32000/8c32300/8c32374v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017878012/'
+    },
+    {
+      title: 'Essex Street Market Produce Stand',
+      description: 'Tomatoes on display at indoor market stall on the Lower East Side',
+      date: new Date(1941, 0, 4), // January 4, 1941
+      imageUrl: 'https://tile.loc.gov/storage-services/service/pnp/fsa/8d31000/8d31600/8d31665v.jpg',
+      source: 'Library of Congress',
+      type: 'archive',
+      url: 'https://www.loc.gov/pictures/item/2017879875/'
+    },
+    {
+      title: 'Stewed Tomatoes - Schrafft\'s',
+      description: '40¢ • Schrafft\'s Restaurant',
+      date: new Date(1938, 0, 4), // January 4, 1938
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
+    {
+      title: 'Tomato Bisque Soup - Four Seasons',
+      description: '$1.25 • The Four Seasons Restaurant',
+      date: new Date(1965, 0, 4), // January 4, 1965
+      imageUrl: null,
+      source: 'NYPL What\'s on the Menu',
+      type: 'menu',
+      url: null
+    },
     // Other months
     {
       title: 'Pushcart vendor selling vegetables on streets of New York City',
